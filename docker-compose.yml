@@ -1,0 +1,18 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres
+    container_name: postgres_henco
+    restart: always
+    environment:
+      POSTGRES_USER: caro        # usuario de la base
+      POSTGRES_PASSWORD: caro1234    # contraseña del usuario
+      POSTGRES_DB: hencoDataBase      # base de datos inicial
+    ports:
+      - "5432:5432"                # expone el puerto local 5432
+    volumes:
+      - postgres_henco:/var/lib/postgresql/data # persistencia de datos
+
+volumes:
+  postgres_henco:
