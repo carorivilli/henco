@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NutriCare - Dietética Profesional",
+  title: "Henco",
   description: "Plataforma profesional de dietética y nutrición para el cuidado de la salud",
 };
 

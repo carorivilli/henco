@@ -160,4 +160,38 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Force white background for all table rows */
+  [role="row"] {
+    background-color: white !important;
+  }
+
+  [role="row"]:hover {
+    background-color: white !important;
+  }
+
+  [role="row"]:focus {
+    background-color: white !important;
+  }
+
+  [role="row"]:active {
+    background-color: white !important;
+  }
+
+  /* Override any shadcn table row styles */
+  .table-row-white {
+    background-color: white !important;
+  }
+
+  .table-row-white:hover {
+    background-color: white !important;
+  }
+
+  .table-row-white:focus {
+    background-color: white !important;
+  }
+
+  .table-row-white:active {
+    background-color: white !important;
+  }
 }
