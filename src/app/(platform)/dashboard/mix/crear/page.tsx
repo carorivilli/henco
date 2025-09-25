@@ -195,26 +195,26 @@ export default function CreateMixPage() {
   const totalCost = calculateTotalCost();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50/30 to-emerald-50/20 p-6">
+    <div className="min-h-screen bg-white p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <Button
             variant="ghost"
             onClick={handleCancel}
-            className="mb-4 text-green-700 hover:text-green-800 hover:bg-green-100/50"
+            className="mb-4 text-primary hover:text-primary hover:bg-primary/50"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Volver a Mix
           </Button>
           <div className="text-center">
             <div className="mx-auto w-20 h-20 bg-white/90 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-6 shadow-xl">
-              <Blend className="h-10 w-10 text-green-600" />
+              <Blend className="h-10 w-10 text-primary" />
             </div>
-            <h1 className="text-4xl font-bold text-green-800 mb-3 drop-shadow-sm">
+            <h1 className="text-4xl font-bold text-primary mb-3 drop-shadow-sm">
               Nuevo Mix
             </h1>
-            <p className="text-green-700/80 text-lg">
+            <p className="text-primary/80 text-lg">
               Crea una nueva mezcla personalizada de productos
             </p>
           </div>
@@ -222,8 +222,8 @@ export default function CreateMixPage() {
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Información Básica */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-green-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-green-700 to-emerald-800 px-6 py-4">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-primary overflow-hidden">
+            <div className="bg-gradient-to-r from-primary to-primary px-6 py-4">
               <h2 className="text-xl font-bold text-white flex items-center">
                 <Blend className="h-6 w-6 mr-3" />
                 Información Básica
@@ -232,7 +232,7 @@ export default function CreateMixPage() {
             <div className="p-8">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-gray-700 font-medium flex items-center">
-                  <Blend className="h-4 w-4 mr-2 text-green-600" />
+                  <Blend className="h-4 w-4 mr-2 text-primary" />
                   Nombre del Mix
                 </Label>
                 <Input
@@ -240,7 +240,7 @@ export default function CreateMixPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Ej: Mix energético, Mix proteico..."
-                  className="border-green-200 focus:border-green-500 focus:ring-green-500"
+                  className="border-primary focus:border-primary focus:ring-primary"
                   required
                 />
               </div>
@@ -248,8 +248,8 @@ export default function CreateMixPage() {
           </div>
 
           {/* Selección de Productos */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-green-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-emerald-700 to-green-800 px-6 py-4">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-primary overflow-hidden">
+            <div className="bg-gradient-to-r from-primary to-primary px-6 py-4">
               <h2 className="text-xl font-bold text-white flex items-center">
                 <Vegan className="h-6 w-6 mr-3" />
                 Productos Disponibles
@@ -258,11 +258,11 @@ export default function CreateMixPage() {
             <div className="p-8">
               <div className="grid gap-4">
                 {products?.map((product) => (
-                  <div key={product.id} className="flex items-center justify-between p-4 border border-green-200 rounded-lg bg-green-50/30">
+                  <div key={product.id} className="flex items-center justify-between p-4 border border-primary rounded-lg bg-primary/30">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3">
                         <span className="font-medium text-gray-800">{product.name}</span>
-                        <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium">
+                        <span className="px-2 py-1 bg-primary text-primary-foreground rounded text-xs font-medium">
                           {product.type}
                         </span>
                       </div>
@@ -284,7 +284,7 @@ export default function CreateMixPage() {
                 {(!products || products.length === 0) && (
                   <p className="text-gray-600 text-center py-8">
                     No hay productos disponibles.
-                    <a href="/dashboard/productos/crear" className="text-green-600 hover:underline ml-1">
+                    <a href="/dashboard/productos/crear" className="text-primary hover:underline ml-1">
                       Crear productos
                     </a>
                   </p>
@@ -295,8 +295,8 @@ export default function CreateMixPage() {
 
           {/* Productos en el Mix */}
           {formData.products.length > 0 && (
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-green-200 overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-700 to-cyan-800 px-6 py-4">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-primary overflow-hidden">
+              <div className="bg-gradient-to-r from-amber-700 to-orange-800 px-6 py-4">
                 <h2 className="text-xl font-bold text-white flex items-center">
                   <Blend className="h-6 w-6 mr-3" />
                   Productos en el Mix
@@ -305,11 +305,11 @@ export default function CreateMixPage() {
               <div className="p-8">
                 <div className="space-y-4">
                   {formData.products.map((product) => (
-                    <div key={product.productId} className="flex items-center space-x-4 p-4 border border-blue-200 rounded-lg bg-blue-50/30">
+                    <div key={product.productId} className="flex items-center space-x-4 p-4 border border-amber-200 rounded-lg bg-amber-50/30">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
                           <span className="font-medium text-gray-800">{product.name}</span>
-                          <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
+                          <span className="px-2 py-1 bg-amber-100 text-amber-800 rounded text-xs font-medium">
                             {product.type}
                           </span>
                         </div>
@@ -322,14 +322,14 @@ export default function CreateMixPage() {
                           type="text"
                           value={product.quantityKg}
                           onChange={(e) => handleQuantityChange(product.productId, e.target.value)}
-                          className="w-24 text-center border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                          className="w-24 text-center border-amber-200 focus:border-amber-500 focus:ring-amber-500"
                           placeholder="1.0"
                         />
                       </div>
 
                       <div className="text-right">
                         <p className="text-sm text-gray-600">Costo parcial:</p>
-                        <p className="font-semibold text-blue-700">${product.partialCost}</p>
+                        <p className="font-semibold text-amber-700">${product.partialCost}</p>
                       </div>
 
                       <Button
@@ -347,7 +347,7 @@ export default function CreateMixPage() {
                   <div className="border-t border-gray-200 pt-4">
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-semibold text-gray-800">Costo Total:</span>
-                      <span className="text-xl font-bold text-green-700">${totalCost.toFixed(2)}</span>
+                      <span className="text-xl font-bold text-primary">${totalCost.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -357,8 +357,8 @@ export default function CreateMixPage() {
 
           {/* Configuración de Precios */}
           {priceTypes && priceTypes.length > 0 && formData.products.length > 0 && (
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-green-200 overflow-hidden">
-              <div className="bg-gradient-to-r from-purple-700 to-indigo-800 px-6 py-4">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-primary overflow-hidden">
+              <div className="bg-gradient-to-r from-green-700 to-emerald-800 px-6 py-4">
                 <h2 className="text-xl font-bold text-white flex items-center">
                   <Percent className="h-6 w-6 mr-3" />
                   Configuración de Precios por Tipo
@@ -376,7 +376,7 @@ export default function CreateMixPage() {
                     const finalPrice = calculateFinalPrice(totalCost, markupPercent);
 
                     return (
-                      <div key={priceType.id} className="p-6 border border-purple-200 rounded-lg bg-purple-50/30">
+                      <div key={priceType.id} className="p-6 border border-green-200 rounded-lg bg-green-50/30">
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center space-x-2">
                             <Label className="font-medium text-gray-800 text-lg">
@@ -390,7 +390,7 @@ export default function CreateMixPage() {
                           </div>
                           <div className="text-right">
                             <p className="text-sm text-gray-600">Precio final:</p>
-                            <p className="text-xl font-bold text-purple-700">${finalPrice}</p>
+                            <p className="text-xl font-bold text-green-700">${finalPrice}</p>
                           </div>
                         </div>
 
@@ -407,9 +407,9 @@ export default function CreateMixPage() {
                               onChange={(e) => handleNumericInput(e.target.value, priceType.id)}
                               onFocus={() => handleNumericFocus(priceType.id)}
                               placeholder="0.00"
-                              className="pr-8 border-purple-200 focus:border-purple-500 focus:ring-purple-500"
+                              className="pr-8 border-green-200 focus:border-green-500 focus:ring-green-500"
                             />
-                            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-purple-600 font-medium">
+                            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600 font-medium">
                               %
                             </span>
                           </div>
@@ -426,7 +426,7 @@ export default function CreateMixPage() {
             <div className="p-4 border border-amber-200 rounded-lg bg-amber-50/30">
               <p className="text-sm text-amber-700">
                 No hay tipos de precio configurados.
-                <a href="/dashboard/tipos-precio" className="text-green-600 hover:underline ml-1">
+                <a href="/dashboard/tipos-precio" className="text-primary hover:underline ml-1">
                   Crear tipos de precio
                 </a>
               </p>
@@ -465,15 +465,15 @@ export default function CreateMixPage() {
         </form>
 
         {/* Info Card */}
-        <Card className="mt-6 border-green-200 bg-green-50/80 backdrop-blur-sm">
+        <Card className="mt-6 border-primary bg-primary/80 backdrop-blur-sm">
           <CardContent className="p-6">
             <div className="flex items-start space-x-3">
-              <div className="w-3 h-3 bg-green-500 rounded-full mt-1"></div>
+              <div className="w-3 h-3 bg-primary rounded-full mt-1"></div>
               <div>
-                <h3 className="font-semibold text-green-800 mb-2">
+                <h3 className="font-semibold text-primary-foreground mb-2">
                   💡 Consejos para crear mix
                 </h3>
-                <ul className="text-sm text-green-700 space-y-1">
+                <ul className="text-sm text-primary-foreground space-y-1">
                   <li>• Ajusta las cantidades de cada producto según tus necesidades</li>
                   <li>• El costo total se calcula automáticamente basado en las cantidades</li>
                   <li>• Configura diferentes porcentajes para cada tipo de precio</li>

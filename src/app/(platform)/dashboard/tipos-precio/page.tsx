@@ -149,7 +149,7 @@ export default function PriceTypesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50/30 to-emerald-50/20 p-6">
+    <div className="min-h-screen bg-white p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -157,11 +157,11 @@ export default function PriceTypesPage() {
             <div>
               <div className="flex items-center space-x-3 mb-2">
                 <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-                  <DollarSign className="h-7 w-7 text-green-600" />
+                  <DollarSign className="h-7 w-7 text-primary" />
                 </div>
-                <h1 className="text-4xl font-bold text-green-800 drop-shadow-sm">Tipos de Precio</h1>
+                <h1 className="text-4xl font-bold text-primary drop-shadow-sm">Tipos de Precio</h1>
               </div>
-              <p className="text-green-700/80 text-lg">
+              <p className="text-black text-lg">
                 Gestiona los diferentes tipos de precio para productos y mixes
               </p>
             </div>
@@ -172,32 +172,32 @@ export default function PriceTypesPage() {
                   Nuevo Tipo de Precio
                 </Button>
               </DialogTrigger>
-              <DialogContent className="border-green-200 bg-white/95 backdrop-blur-sm">
+              <DialogContent className="border-primary bg-white/95 backdrop-blur-sm">
                 <DialogHeader>
-                  <DialogTitle className="text-green-800 flex items-center">
+                  <DialogTitle className="text-primary flex items-center">
                     <DollarSign className="h-5 w-5 mr-2" />
                     Crear Nuevo Tipo de Precio
                   </DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="name" className="text-green-700 font-medium">Nombre</Label>
+                    <Label htmlFor="name" className="text-primary font-medium">Nombre</Label>
                     <Input
                       id="name"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="Ej: Mayorista, Minorista, Promo..."
-                      className="border-green-200 focus:border-green-500 focus:ring-green-500"
+                      className="border-primary focus:border-primary focus:ring-primary"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="description" className="text-green-700 font-medium">Descripción</Label>
+                    <Label htmlFor="description" className="text-primary font-medium">Descripción</Label>
                     <Input
                       id="description"
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                       placeholder="Descripción del tipo de precio (opcional)"
-                      className="border-green-200 focus:border-green-500 focus:ring-green-500"
+                      className="border-primary focus:border-primary focus:ring-primary"
                     />
                   </div>
                   <div className="flex items-center space-x-2">
@@ -208,14 +208,14 @@ export default function PriceTypesPage() {
                         setFormData({ ...formData, isDefault: checked as boolean })
                       }
                     />
-                    <Label htmlFor="isDefault" className="text-green-700 font-medium flex items-center">
+                    <Label htmlFor="isDefault" className="text-primary font-medium flex items-center">
                       <Star className="h-4 w-4 mr-1" />
                       Tipo de precio por defecto
                     </Label>
                   </div>
                   <Button
                     onClick={handleCreate}
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                    className="w-full bg-gradient-to-r from-primary to-primary hover:from-primary hover:to-primary"
                     disabled={createMutation.isPending}
                   >
                     {createMutation.isPending ? (
@@ -237,8 +237,8 @@ export default function PriceTypesPage() {
         </div>
 
         {/* Price Types Table */}
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-green-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-green-700 to-emerald-800 px-6 py-4">
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-primary overflow-hidden">
+          <div className="bg-gradient-to-r from-primary to-primary px-6 py-4">
             <h2 className="text-xl font-bold text-white flex items-center">
               <Percent className="h-6 w-6 mr-3" />
               Tipos de Precio Configurados
@@ -247,12 +247,12 @@ export default function PriceTypesPage() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-b border-green-100 bg-green-50/50">
-                  <TableHead className="text-green-800 font-semibold">Nombre</TableHead>
-                  <TableHead className="text-green-800 font-semibold">Descripción</TableHead>
-                  <TableHead className="text-green-800 font-semibold">Estado</TableHead>
-                  <TableHead className="text-green-800 font-semibold">Fecha de Creación</TableHead>
-                  <TableHead className="text-right text-green-800 font-semibold">Acciones</TableHead>
+                <TableRow className="border-b border-primary bg-primary/50">
+                  <TableHead className="text-white font-semibold">Nombre</TableHead>
+                  <TableHead className="text-white font-semibold">Descripción</TableHead>
+                  <TableHead className="text-white font-semibold">Estado</TableHead>
+                  <TableHead className="text-white font-semibold">Fecha de Creación</TableHead>
+                  <TableHead className="text-right text-white font-semibold">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -263,7 +263,7 @@ export default function PriceTypesPage() {
                   >
                     <TableCell className="font-medium text-gray-900">
                       <div className="flex items-center space-x-3">
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <div className="w-3 h-3 bg-primary rounded-full"></div>
                         <span>{priceType.name}</span>
                         {priceType.isDefault && (
                           <Star className="h-4 w-4 text-yellow-500 fill-current" />
@@ -279,7 +279,7 @@ export default function PriceTypesPage() {
                           Por Defecto
                         </span>
                       ) : (
-                        <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                        <span className="px-3 py-1 bg-primary text-primary-foreground rounded-full text-sm font-medium">
                           Activo
                         </span>
                       )}
@@ -304,7 +304,7 @@ export default function PriceTypesPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => handleEdit(priceType)}
-                          className="border-green-300 text-green-700 hover:bg-green-50"
+                          className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -325,8 +325,8 @@ export default function PriceTypesPage() {
                   <TableRow>
                     <TableCell colSpan={5} className="text-center py-16">
                       <div className="flex flex-col items-center space-y-4">
-                        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-                          <DollarSign className="h-10 w-10 text-green-600" />
+                        <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center">
+                          <DollarSign className="h-10 w-10 text-primary-foreground" />
                         </div>
                         <div>
                           <p className="text-gray-800 font-semibold text-lg mb-2">
@@ -354,9 +354,9 @@ export default function PriceTypesPage() {
 
         {/* Edit Dialog */}
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <DialogContent className="border-green-200 bg-white/95 backdrop-blur-sm">
+          <DialogContent className="border-primary bg-white/95 backdrop-blur-sm">
             <DialogHeader>
-              <DialogTitle className="text-green-800 text-xl">Editar Tipo de Precio</DialogTitle>
+              <DialogTitle className="text-primary text-xl">Editar Tipo de Precio</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -366,7 +366,7 @@ export default function PriceTypesPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Nombre del tipo de precio"
-                  className="border-green-200 focus:border-green-500 focus:ring-green-500"
+                  className="border-primary focus:border-primary focus:ring-primary"
                 />
               </div>
               <div>
@@ -376,7 +376,7 @@ export default function PriceTypesPage() {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Descripción del tipo de precio (opcional)"
-                  className="border-green-200 focus:border-green-500 focus:ring-green-500"
+                  className="border-primary focus:border-primary focus:ring-primary"
                 />
               </div>
               <div className="flex items-center space-x-2">

@@ -39,8 +39,8 @@ export function AuthCard({ title, description, children }: AuthCardProps) {
           <div className="flex justify-center mb-2">
             <div className="relative">
               <img
-                src="/logo.png"
-                alt="Logo - Dietética Profesional"
+                src="/logoHenco.jpeg"
+                alt="Logo - Henco"
                 className="drop-shadow-lg h-40 w-auto object-contain max-w-full"
               />
             </div>

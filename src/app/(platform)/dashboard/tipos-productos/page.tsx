@@ -125,7 +125,7 @@ export default function ProductTypesPage() {
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-br from-green-50/30 to-emerald-50/20 p-6"
+      className="min-h-screen bg-white p-6"
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -134,11 +134,11 @@ export default function ProductTypesPage() {
             <div>
               <div className="flex items-center space-x-3 mb-2">
                 <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-                  <Tag className="h-7 w-7 text-green-600" />
+                  <Tag className="h-7 w-7 text-primary" />
                 </div>
-                <h1 className="text-4xl font-bold text-green-800 drop-shadow-sm">Tipos de Productos</h1>
+                <h1 className="text-4xl font-bold text-primary drop-shadow-sm">Tipos de Productos</h1>
               </div>
-              <p className="text-green-700/80 text-lg">
+              <p className="text-black text-lg">
                 Gestiona los tipos de productos para tu dietética
               </p>
             </div>
@@ -153,8 +153,8 @@ export default function ProductTypesPage() {
         </div>
 
         {/* Product Types Table */}
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-green-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-green-700 to-emerald-800 px-6 py-4">
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-primary overflow-hidden">
+          <div className="bg-gradient-to-r from-primary to-primary px-6 py-4">
             <h2 className="text-xl font-bold text-white flex items-center">
               <Tag className="h-6 w-6 mr-3" />
               Tipos de Productos
@@ -163,10 +163,10 @@ export default function ProductTypesPage() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-b border-green-100 bg-green-50/50">
-                  <TableHead className="text-green-800 font-semibold">Nombre</TableHead>
-                  <TableHead className="text-green-800 font-semibold">Fecha de Creación</TableHead>
-                  <TableHead className="text-right text-green-800 font-semibold">Acciones</TableHead>
+                <TableRow className="border-b border-primary bg-primary/50">
+                  <TableHead className="text-white font-semibold">Nombre</TableHead>
+                  <TableHead className="text-white font-semibold">Fecha de Creación</TableHead>
+                  <TableHead className="text-right text-white font-semibold">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -177,7 +177,7 @@ export default function ProductTypesPage() {
                   >
                     <TableCell className="font-medium text-gray-900">
                       <div className="flex items-center space-x-3">
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <div className="w-3 h-3 bg-primary rounded-full"></div>
                         <span>{productType.name}</span>
                       </div>
                     </TableCell>
@@ -190,7 +190,7 @@ export default function ProductTypesPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => handleEdit(productType)}
-                          className="border-green-300 text-green-700 hover:bg-green-50"
+                          className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -211,8 +211,8 @@ export default function ProductTypesPage() {
                   <TableRow>
                     <TableCell colSpan={3} className="text-center py-16">
                       <div className="flex flex-col items-center space-y-4">
-                        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-                          <Tag className="h-10 w-10 text-green-600" />
+                        <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center">
+                          <Tag className="h-10 w-10 text-primary-foreground" />
                         </div>
                         <div>
                           <p className="text-gray-800 font-semibold text-lg mb-2">
@@ -240,9 +240,9 @@ export default function ProductTypesPage() {
 
         {/* Create Dialog */}
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogContent className="border-green-200 bg-white/95 backdrop-blur-sm">
+          <DialogContent className="border-primary bg-white/95 backdrop-blur-sm">
             <DialogHeader>
-              <DialogTitle className="text-green-800 text-xl">Crear Tipo de Producto</DialogTitle>
+              <DialogTitle className="text-primary text-xl">Crear Tipo de Producto</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -254,7 +254,7 @@ export default function ProductTypesPage() {
                     setFormData({ ...formData, name: e.target.value })
                   }
                   placeholder="Ej: Frutos secos, Cereales, Legumbres..."
-                  className="border-green-200 focus:border-green-500 focus:ring-green-500"
+                  className="border-primary focus:border-primary focus:ring-primary"
                 />
               </div>
               <Button
@@ -270,9 +270,9 @@ export default function ProductTypesPage() {
 
         {/* Edit Dialog */}
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <DialogContent className="border-green-200 bg-white/95 backdrop-blur-sm">
+          <DialogContent className="border-primary bg-white/95 backdrop-blur-sm">
             <DialogHeader>
-              <DialogTitle className="text-green-800 text-xl">Editar Tipo de Producto</DialogTitle>
+              <DialogTitle className="text-primary text-xl">Editar Tipo de Producto</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -284,7 +284,7 @@ export default function ProductTypesPage() {
                     setFormData({ ...formData, name: e.target.value })
                   }
                   placeholder="Nombre del tipo de producto"
-                  className="border-green-200 focus:border-green-500 focus:ring-green-500"
+                  className="border-primary focus:border-primary focus:ring-primary"
                 />
               </div>
               <Button

@@ -1,10 +1,15 @@
+"use client";
+
 import * as React from "react";
 import Link from "next/link";
-import { Vegan } from "lucide-react";
+import { LogOut, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarHeader,
   SidebarMenu,
@@ -14,6 +19,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { useSignOut, useSession } from "@/hooks/auth-hooks";
 
 type SidebarData = {
   navMain: {
@@ -61,45 +67,61 @@ const data: SidebarData = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const { signOut, isPending } = useSignOut();
+
+  const handleSignOut = () => {
+    signOut(undefined, {
+      onSuccess: () => {
+        toast.success("Sesión cerrada exitosamente");
+        router.push("/");
+      },
+      onError: (error) => {
+        toast.error(error.message || "Error al cerrar sesión");
+      },
+    });
+  };
+
   return (
     <Sidebar
       variant="floating"
       className="backdrop-blur-sm"
-      style={{ backgroundColor: 'rgba(220, 243, 212, 0.95)', borderColor: 'rgba(220, 243, 212, 1)' }}
       {...props}
     >
       <SidebarHeader
-        className="border-b"
-        style={{ backgroundColor: 'rgba(220, 243, 212, 0.95)', borderColor: 'rgba(210, 233, 202, 1)' }}
+        className="border-b border-white/20"
       >
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
               asChild
-              className="hover:bg-[#f5e3ce]"
+              className="hover:bg-white/10"
             >
-              <a href="#">
-                <div className="bg-green-100 text-green-700 flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Vegan className="size-4" />
-                </div>
+              <a href="/dashboard" className="flex items-center gap-3">
+                <img
+                  src="/logoHenco.jpeg"
+                  alt="Logo Henco"
+                  className="w-30 h-30 rounded-lg object-cover"
+                />
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-medium text-black">Henco</span>
-                  <span className="text-gray-800">v0.0.1-alpha</span>
+                  <span className="font-medium text-white">Henco</span>
+                  <span className="text-white/80">v0.0.1-alpha</span>
                 </div>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent style={{ backgroundColor: 'rgba(220, 243, 212, 0.95)' }}>
+      <SidebarContent>
         <SidebarGroup>
           <SidebarMenu className="gap-2">
             {data.navMain.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
                   asChild
-                  className="text-black hover:text-green-800 hover:bg-[#d2e3ca]"
+                  className="text-white hover:text-white hover:bg-white/10"
                 >
                   <Link href={item.url} className="font-medium">
                     {item.title}
@@ -112,7 +134,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         <SidebarMenuSubButton
                           asChild
                           isActive={item.isActive}
-                          className="text-black hover:text-green-700 data-[active=true]:bg-green-500 data-[active=true]:text-white hover:bg-[#d2e3ca]/60"
+                          className="text-white/90 hover:text-white data-[active=true]:bg-white/20 data-[active=true]:text-white hover:bg-white/10"
                         >
                           <Link href={item.url}>{item.title}</Link>
                         </SidebarMenuSubButton>
@@ -125,6 +147,40 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter
+        className="border-t border-white/20"
+      >
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              className="text-white hover:text-white hover:bg-white/10"
+            >
+              <div className="flex items-center gap-2 px-2 py-1.5">
+                <User className="size-4" />
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">
+                    {session?.user?.name || session?.user?.email || "Usuario"}
+                  </span>
+                  <span className="text-xs text-white/70">
+                    {session?.user?.email}
+                  </span>
+                </div>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={handleSignOut}
+              disabled={isPending}
+              className="text-white hover:text-white hover:bg-white/10 cursor-pointer"
+            >
+              <LogOut className="size-4" />
+              {isPending ? "Cerrando..." : "Cerrar Sesión"}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }

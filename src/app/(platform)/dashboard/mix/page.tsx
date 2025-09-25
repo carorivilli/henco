@@ -316,7 +316,7 @@ export default function MixesPage() {
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-br from-green-50/30 to-emerald-50/20 p-6"
+      className="min-h-screen bg-white p-6"
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -325,11 +325,11 @@ export default function MixesPage() {
             <div>
               <div className="flex items-center space-x-3 mb-2">
                 <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-                  <Blend className="h-7 w-7 text-green-600" />
+                  <Blend className="h-7 w-7 text-primary" />
                 </div>
-                <h1 className="text-4xl font-bold text-green-800 drop-shadow-sm">Mix de Productos</h1>
+                <h1 className="text-4xl font-bold text-primary drop-shadow-sm">Mix de Productos</h1>
               </div>
-              <p className="text-green-700/80 text-lg">
+              <p className="text-black text-lg">
                 Crea y gestiona mezclas personalizadas de productos de tu dietética
               </p>
             </div>
@@ -345,8 +345,8 @@ export default function MixesPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Lista de Mixes */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-green-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-green-700 to-emerald-800 px-6 py-4">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-primary overflow-hidden">
+            <div className="bg-gradient-to-r from-primary to-primary px-6 py-4">
               <h2 className="text-xl font-bold text-white flex items-center">
                 <Leaf className="h-6 w-6 mr-3" />
                 Lista de Mix
@@ -359,17 +359,17 @@ export default function MixesPage() {
                     key={mix.id}
                     className={`p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
                       selectedMix?.id === mix.id
-                        ? "bg-emerald-100 border-emerald-400 shadow-md"
-                        : "border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300"
+                        ? "bg-primary/20 border-primary shadow-md"
+                        : "border-primary/30 hover:bg-primary/10 hover:border-primary/50"
                     }`}
                     onClick={() => setSelectedMix(mix)}
                   >
                     <div className="flex justify-between items-center">
                       <div className="flex items-center space-x-3">
-                        <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                        <div className="w-3 h-3 bg-primary rounded-full"></div>
                         <div>
-                          <h3 className="font-semibold text-emerald-900">{mix.name}</h3>
-                          <p className="text-sm text-emerald-600">
+                          <h3 className="font-semibold text-gray-900">{mix.name}</h3>
+                          <p className="text-sm text-gray-600">
                             Costo Total: <span className="font-bold">${mix.totalCost}</span>
                           </p>
                         </div>
@@ -382,7 +382,7 @@ export default function MixesPage() {
                             e.stopPropagation();
                             handleEdit(mix);
                           }}
-                          className="border-green-300 text-green-700 hover:bg-green-50"
+                          className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -405,14 +405,14 @@ export default function MixesPage() {
                 {(!mixes || mixes.length === 0) && (
                   <div className="text-center py-8">
                     <div className="flex flex-col items-center space-y-3">
-                      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                        <Blend className="h-8 w-8 text-green-500" />
+                      <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
+                        <Blend className="h-8 w-8 text-primary-foreground" />
                       </div>
                       <div>
-                        <p className="text-emerald-800 font-medium mb-1">
+                        <p className="text-gray-800 font-medium mb-1">
                           No hay mix creados
                         </p>
-                        <p className="text-emerald-600 text-sm">
+                        <p className="text-gray-600 text-sm">
                           Crea tu primera mezcla de productos
                         </p>
                       </div>
@@ -424,8 +424,8 @@ export default function MixesPage() {
           </div>
 
           {/* Detalles del Mix */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-green-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-green-700 to-emerald-800 px-6 py-4">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-primary overflow-hidden">
+            <div className="bg-gradient-to-r from-primary to-primary px-6 py-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-white flex items-center">
                   <Vegan className="h-6 w-6 mr-3" />
@@ -434,21 +434,21 @@ export default function MixesPage() {
                 {selectedMix && (
                   <Dialog open={isAddProductOpen} onOpenChange={setIsAddProductOpen}>
                     <DialogTrigger asChild>
-                      <Button size="sm" className="bg-white text-green-700 hover:bg-green-50">
+                      <Button size="sm" className="bg-white text-primary hover:bg-primary hover:text-primary-foreground">
                         <ShoppingCart className="h-4 w-4 mr-2" />
                         Agregar Producto
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="border-green-200 bg-white/95 backdrop-blur-sm">
+                    <DialogContent className="border-primary bg-white/95 backdrop-blur-sm">
                       <DialogHeader>
-                        <DialogTitle className="text-green-800 flex items-center">
+                        <DialogTitle className="text-primary flex items-center">
                           <ShoppingCart className="h-5 w-5 mr-2" />
                           Agregar Producto al Mix
                         </DialogTitle>
                       </DialogHeader>
                       <div className="space-y-4">
                         <div>
-                          <Label htmlFor="product" className="text-green-700 font-medium">
+                          <Label htmlFor="product" className="text-primary font-medium">
                             Producto
                           </Label>
                           <Select
@@ -460,7 +460,7 @@ export default function MixesPage() {
                               })
                             }
                           >
-                            <SelectTrigger className="border-green-200 focus:border-green-500 focus:ring-green-500">
+                            <SelectTrigger className="border-primary focus:border-primary focus:ring-primary">
                               <SelectValue placeholder="Seleccionar producto" />
                             </SelectTrigger>
                             <SelectContent>
@@ -473,7 +473,7 @@ export default function MixesPage() {
                           </Select>
                         </div>
                         <div>
-                          <Label htmlFor="quantity" className="text-green-700 font-medium">
+                          <Label htmlFor="quantity" className="text-primary font-medium">
                             Cantidad (kg)
                           </Label>
                           <Input
@@ -496,12 +496,12 @@ export default function MixesPage() {
                               }
                             }}
                             placeholder="0.000"
-                            className="border-green-200 focus:border-green-500 focus:ring-green-500"
+                            className="border-primary focus:border-primary focus:ring-primary"
                           />
                         </div>
                         <Button
                           onClick={handleAddProduct}
-                          className="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700"
+                          className="w-full bg-gradient-to-r from-primary to-primary hover:from-primary hover:to-primary"
                           disabled={addProductMutation.isPending}
                         >
                           {addProductMutation.isPending ? (
@@ -525,25 +525,25 @@ export default function MixesPage() {
             <div className="p-6">
               {selectedMix ? (
                 <div className="space-y-6">
-                  <div className="p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg border border-emerald-200">
-                    <h3 className="font-semibold text-emerald-900 mb-2">Resumen del Mix</h3>
-                    <p className="text-sm text-emerald-700 mb-1">
+                  <div className="p-4 bg-gradient-to-r from-primary to-primary rounded-lg border border-primary">
+                    <h3 className="font-semibold text-white mb-2">Resumen del Mix</h3>
+                    <p className="text-sm text-white/90 mb-1">
                       Nombre: <span className="font-medium">{selectedMix.name}</span>
                     </p>
-                    <p className="text-2xl font-bold text-emerald-600">
+                    <p className="text-2xl font-bold text-white">
                       Costo Total: ${mixDetails?.totalCost || "0.00"}
                     </p>
                   </div>
 
                   {mixDetails?.products && mixDetails.products.length > 0 ? (
-                    <div className="border-2 border-emerald-200 rounded-lg overflow-hidden">
+                    <div className="border-2 border-primary/30 rounded-lg overflow-hidden">
                       <Table>
                         <TableHeader>
-                          <TableRow className="bg-emerald-50">
-                            <TableHead className="text-emerald-800 font-semibold">Producto</TableHead>
-                            <TableHead className="text-emerald-800 font-semibold">Cantidad (kg)</TableHead>
-                            <TableHead className="text-emerald-800 font-semibold">Costo Parcial</TableHead>
-                            <TableHead className="text-emerald-800 font-semibold"></TableHead>
+                          <TableRow className="bg-primary">
+                            <TableHead className="text-white font-semibold">Producto</TableHead>
+                            <TableHead className="text-white font-semibold">Cantidad (kg)</TableHead>
+                            <TableHead className="text-white font-semibold">Costo Parcial</TableHead>
+                            <TableHead className="text-white font-semibold"></TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -554,19 +554,19 @@ export default function MixesPage() {
                             >
                               <TableCell>
                                 <div className="flex items-center space-x-2">
-                                  <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                  <div className="w-2 h-2 bg-primary rounded-full"></div>
                                   <div>
-                                    <p className="font-medium text-emerald-900">{item.product.name}</p>
-                                    <p className="text-sm text-emerald-600">
+                                    <p className="font-medium text-gray-900">{item.product.name}</p>
+                                    <p className="text-sm text-gray-600">
                                       ${item.product.costPerKg}/kg
                                     </p>
                                   </div>
                                 </div>
                               </TableCell>
-                              <TableCell className="text-emerald-800 font-medium">
+                              <TableCell className="text-gray-800 font-medium">
                                 {item.quantityKg} kg
                               </TableCell>
-                              <TableCell className="font-bold text-emerald-900">
+                              <TableCell className="font-bold text-gray-900">
                                 ${item.partialCost}
                               </TableCell>
                               <TableCell>
@@ -588,14 +588,14 @@ export default function MixesPage() {
                   ) : (
                     <div className="text-center py-12">
                       <div className="flex flex-col items-center space-y-3">
-                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                          <Vegan className="h-8 w-8 text-green-500" />
+                        <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
+                          <Vegan className="h-8 w-8 text-primary-foreground" />
                         </div>
                         <div>
-                          <p className="text-emerald-800 font-medium mb-1">
+                          <p className="text-gray-800 font-medium mb-1">
                             No hay productos en este mix
                           </p>
-                          <p className="text-emerald-600 text-sm">
+                          <p className="text-gray-600 text-sm">
                             Agrega productos para comenzar a crear tu mezcla
                           </p>
                         </div>
@@ -606,14 +606,14 @@ export default function MixesPage() {
               ) : (
                 <div className="text-center py-12">
                   <div className="flex flex-col items-center space-y-3">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                      <Blend className="h-8 w-8 text-green-500" />
+                    <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
+                      <Blend className="h-8 w-8 text-primary-foreground" />
                     </div>
                     <div>
-                      <p className="text-emerald-800 font-medium mb-1">
+                      <p className="text-gray-800 font-medium mb-1">
                         Selecciona un mix para ver sus detalles
                       </p>
-                      <p className="text-emerald-600 text-sm">
+                      <p className="text-gray-600 text-sm">
                         Elige un mix de la lista para gestionar sus productos
                       </p>
                     </div>
@@ -626,9 +626,9 @@ export default function MixesPage() {
 
         {/* Edit Mix Dialog */}
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <DialogContent className="border-green-200 bg-white/95 backdrop-blur-sm">
+          <DialogContent className="border-primary bg-white/95 backdrop-blur-sm">
             <DialogHeader>
-              <DialogTitle className="text-green-800 flex items-center">
+              <DialogTitle className="text-primary flex items-center">
                 <Pencil className="h-5 w-5 mr-2" />
                 Editar Mix
               </DialogTitle>
@@ -644,7 +644,7 @@ export default function MixesPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Ej: Mix energético, Mix proteico..."
-                  className="border-green-200 focus:border-green-500 focus:ring-green-500"
+                  className="border-primary focus:border-primary focus:ring-primary"
                 />
               </div>
 
@@ -670,7 +670,7 @@ export default function MixesPage() {
                       const finalPrice = calculateFinalPrice(totalCost, markupPercent);
 
                       return (
-                        <div key={priceType.id} className="p-4 border border-green-200 rounded-lg bg-green-50/30">
+                        <div key={priceType.id} className="p-4 border border-primary rounded-lg bg-primary/30">
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center space-x-2">
                               <Label className="font-medium text-gray-800">
@@ -683,7 +683,7 @@ export default function MixesPage() {
                               )}
                             </div>
                             <div className="text-sm text-gray-600">
-                              Precio final: <span className="font-semibold text-green-700">${finalPrice}</span>
+                              Precio final: <span className="font-semibold text-primary">${finalPrice}</span>
                             </div>
                           </div>
                           {priceType.description && (
@@ -696,9 +696,9 @@ export default function MixesPage() {
                               onChange={(e) => handleNumericInput(e.target.value, priceType.id)}
                               onFocus={() => handleNumericFocus(priceType.id)}
                               placeholder="0.00"
-                              className="pr-8 border-green-200 focus:border-green-500 focus:ring-green-500"
+                              className="pr-8 border-primary focus:border-primary focus:ring-primary"
                             />
-                            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600 font-medium">
+                            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary font-medium">
                               %
                             </span>
                           </div>
@@ -713,7 +713,7 @@ export default function MixesPage() {
                 <div className="p-4 border border-amber-200 rounded-lg bg-amber-50/30">
                   <p className="text-sm text-amber-700">
                     No hay tipos de precio configurados.
-                    <a href="/dashboard/tipos-precio" className="text-green-600 hover:underline ml-1">
+                    <a href="/dashboard/tipos-precio" className="text-primary hover:underline ml-1">
                       Crear tipos de precio
                     </a>
                   </p>
@@ -754,7 +754,7 @@ export default function MixesPage() {
                                 e.target.value = "";
                               }
                             }}
-                            className="w-20 text-sm border-gray-200 focus:border-green-500 focus:ring-green-500"
+                            className="w-20 text-sm border-gray-200 focus:border-primary focus:ring-primary"
                           />
                           <span className="text-sm text-gray-600">kg</span>
                           <Button

@@ -138,34 +138,34 @@ export default function CreateProductPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50/30 to-emerald-50/20 p-6">
+    <div className="min-h-screen bg-white p-6">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <Button
             variant="ghost"
             onClick={handleCancel}
-            className="mb-4 text-green-700 hover:text-green-800 hover:bg-green-100/50"
+            className="mb-4 text-primary hover:text-primary hover:bg-primary/50"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Volver a Productos
           </Button>
           <div className="text-center">
             <div className="mx-auto w-20 h-20 bg-white/90 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-6 shadow-xl">
-              <Vegan className="h-10 w-10 text-green-600" />
+              <Vegan className="h-10 w-10 text-primary" />
             </div>
-            <h1 className="text-4xl font-bold text-green-800 mb-3 drop-shadow-sm">
+            <h1 className="text-4xl font-bold text-primary mb-3 drop-shadow-sm">
               Nuevo Producto
             </h1>
-            <p className="text-green-700/80 text-lg">
+            <p className="text-primary/80 text-lg">
               Agrega un nuevo producto a tu inventario de dietética
             </p>
           </div>
         </div>
 
         {/* Form Card */}
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-green-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-green-700 to-emerald-800 px-6 py-4">
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-primary overflow-hidden">
+          <div className="bg-gradient-to-r from-primary to-primary px-6 py-4">
             <h2 className="text-xl font-bold text-white flex items-center">
               <Vegan className="h-6 w-6 mr-3" />
               Información del Producto
@@ -179,7 +179,7 @@ export default function CreateProductPage() {
                   htmlFor="name"
                   className="text-gray-700 font-medium flex items-center"
                 >
-                  <Vegan className="h-4 w-4 mr-2 text-green-600" />
+                  <Vegan className="h-4 w-4 mr-2 text-primary" />
                   Nombre del Producto
                 </Label>
                 <Input
@@ -189,7 +189,7 @@ export default function CreateProductPage() {
                     setFormData({ ...formData, name: e.target.value })
                   }
                   placeholder="Ej: Almendras peladas"
-                  className="border-green-200 focus:border-green-500 focus:ring-green-500"
+                  className="border-primary focus:border-primary focus:ring-primary"
                   required
                 />
               </div>
@@ -200,7 +200,7 @@ export default function CreateProductPage() {
                   htmlFor="type"
                   className="text-gray-700 font-medium flex items-center"
                 >
-                  <Tag className="h-4 w-4 mr-2 text-green-600" />
+                  <Tag className="h-4 w-4 mr-2 text-primary" />
                   Tipo de Producto
                 </Label>
                 <Select
@@ -209,7 +209,7 @@ export default function CreateProductPage() {
                     setFormData({ ...formData, type: value })
                   }
                 >
-                  <SelectTrigger className="border-green-200 focus:border-green-500 focus:ring-green-500">
+                  <SelectTrigger className="border-primary focus:border-primary focus:ring-primary">
                     <SelectValue placeholder="Selecciona un tipo de producto" />
                   </SelectTrigger>
                   <SelectContent>
@@ -223,7 +223,7 @@ export default function CreateProductPage() {
                 {(!productTypes || productTypes.length === 0) && (
                   <p className="text-sm text-amber-600">
                     No hay tipos de productos disponibles.
-                    <a href="/dashboard/tipos-productos" className="text-green-600 hover:underline ml-1">
+                    <a href="/dashboard/tipos-productos" className="text-primary hover:underline ml-1">
                       Crear tipos de productos
                     </a>
                   </p>
@@ -236,11 +236,11 @@ export default function CreateProductPage() {
                   htmlFor="costPerKg"
                   className="text-gray-700 font-medium flex items-center"
                 >
-                  <DollarSign className="h-4 w-4 mr-2 text-green-600" />
+                  <DollarSign className="h-4 w-4 mr-2 text-primary" />
                   Costo por Kilogramo
                 </Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-600 font-medium">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary font-medium">
                     $
                   </span>
                   <Input
@@ -250,7 +250,7 @@ export default function CreateProductPage() {
                     onChange={(e) => handleNumericInput(e.target.value, "costPerKg")}
                     onFocus={() => handleNumericFocus("costPerKg")}
                     placeholder="0.00"
-                    className="pl-8 border-green-200 focus:border-green-500 focus:ring-green-500"
+                    className="pl-8 border-primary focus:border-primary focus:ring-primary"
                     required
                   />
                 </div>
@@ -264,7 +264,7 @@ export default function CreateProductPage() {
                 <div className="space-y-4">
                   <div className="border-t border-gray-200 pt-6">
                     <Label className="text-gray-700 font-medium flex items-center text-lg mb-4">
-                      <Percent className="h-5 w-5 mr-2 text-green-600" />
+                      <Percent className="h-5 w-5 mr-2 text-primary" />
                       Configuración de Precios por Tipo
                     </Label>
                     <p className="text-sm text-gray-600 mb-4">
@@ -279,10 +279,10 @@ export default function CreateProductPage() {
                       const finalPrice = calculateFinalPrice(formData.costPerKg, markupPercent);
 
                       return (
-                        <div key={priceType.id} className="p-4 border border-green-200 rounded-lg bg-green-50/30">
+                        <div key={priceType.id} className="p-4 border border-primary rounded-lg bg-primary/30">
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center space-x-2">
-                              <Label className="font-medium text-gray-800">
+                              <Label className="font-medium text-black">
                                 {priceType.name}
                               </Label>
                               {priceType.isDefault && (
@@ -292,7 +292,7 @@ export default function CreateProductPage() {
                               )}
                             </div>
                             <div className="text-sm text-gray-600">
-                              Precio final: <span className="font-semibold text-green-700">${finalPrice}</span>
+                              Precio final: <span className="font-semibold text-primary">${finalPrice}</span>
                             </div>
                           </div>
                           {priceType.description && (
@@ -305,9 +305,9 @@ export default function CreateProductPage() {
                               onChange={(e) => handleNumericInput(e.target.value, "markupPercent", priceType.id)}
                               onFocus={() => handleNumericFocus("markupPercent", priceType.id)}
                               placeholder="0.00"
-                              className="pr-8 border-green-200 focus:border-green-500 focus:ring-green-500"
+                              className="pr-8 border-primary focus:border-primary focus:ring-primary"
                             />
-                            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600 font-medium">
+                            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary font-medium">
                               %
                             </span>
                           </div>
@@ -322,7 +322,7 @@ export default function CreateProductPage() {
                 <div className="p-4 border border-amber-200 rounded-lg bg-amber-50/30">
                   <p className="text-sm text-amber-700">
                     No hay tipos de precio configurados.
-                    <a href="/dashboard/tipos-precio" className="text-green-600 hover:underline ml-1">
+                    <a href="/dashboard/tipos-precio" className="text-primary hover:underline ml-1">
                       Crear tipos de precio
                     </a>
                   </p>
@@ -363,15 +363,15 @@ export default function CreateProductPage() {
         </div>
 
         {/* Info Card */}
-        <Card className="mt-6 border-green-200 bg-green-50/80 backdrop-blur-sm">
+        <Card className="mt-6 border-primary bg-primary/80 backdrop-blur-sm">
           <CardContent className="p-6">
             <div className="flex items-start space-x-3">
-              <div className="w-3 h-3 bg-green-500 rounded-full mt-1"></div>
+              <div className="w-3 h-3 bg-white rounded-full mt-1"></div>
               <div>
-                <h3 className="font-semibold text-green-800 mb-2">
+                <h3 className="font-semibold text-primary-foreground mb-2">
                   💡 Consejo sobre precios dinámicos
                 </h3>
-                <p className="text-sm text-green-700">
+                <p className="text-sm text-primary-foreground">
                   Con el nuevo sistema de tipos de precio, puedes configurar diferentes porcentajes
                   para cada tipo (mayorista, minorista, promociones, etc.). Solo configura los tipos
                   que utilices para este producto.
