@@ -118,11 +118,15 @@ export const mixesRouter = createTRPCRouter({
   getAllWithPrices: baseProcedure
     .input(z.object({
       priceTypeId: z.string().optional(),
+      priceTypeName: z.string().optional(),
     }))
     .query(async ({ input }) => {
       const mixesData = await db.select().from(mixes).orderBy(mixes.createdAt);
 
-      // Obtener productos para cada mix
+      // Determinar si es tipo mayorista
+      const isMayorista = input.priceTypeName?.toLowerCase().includes('mayorista') || false;
+
+      // Obtener productos y peso total para cada mix
       const mixesWithProducts = await Promise.all(
         mixesData.map(async (mix) => {
           const mixProductsList = await db
@@ -136,6 +140,21 @@ export const mixesRouter = createTRPCRouter({
             .from(mixProducts)
             .innerJoin(products, eq(mixProducts.productId, products.id))
             .where(eq(mixProducts.mixId, mix.id));
+
+          // Calcular peso total del mix
+          const totalWeightResult = await db
+            .select({
+              total: sql<string>`COALESCE(SUM(${mixProducts.quantityKg}), 0)`,
+            })
+            .from(mixProducts)
+            .where(eq(mixProducts.mixId, mix.id));
+
+          const totalWeight = parseFloat(totalWeightResult[0]?.total || "0");
+
+          // Si es mayorista, filtrar solo mix con peso >= 5kg
+          if (isMayorista && totalWeight < 5) {
+            return null; // Excluir este mix
+          }
 
           // Si se especifica un tipo de precio, obtener los precios
           if (input.priceTypeId) {
@@ -155,6 +174,7 @@ export const mixesRouter = createTRPCRouter({
             return {
               ...mix,
               products: mixProductsList.map(mp => mp.product),
+              totalWeight: totalWeight.toFixed(3),
               markupPercent: priceData?.markupPercent || "0",
               finalPrice: priceData?.finalPrice || "0",
             };
@@ -163,11 +183,13 @@ export const mixesRouter = createTRPCRouter({
           return {
             ...mix,
             products: mixProductsList.map(mp => mp.product),
+            totalWeight: totalWeight.toFixed(3),
           };
         })
       );
 
-      return mixesWithProducts;
+      // Filtrar los mix nulos (excluidos por peso mínimo)
+      return mixesWithProducts.filter(mix => mix !== null);
     }),
 
   getById: baseProcedure

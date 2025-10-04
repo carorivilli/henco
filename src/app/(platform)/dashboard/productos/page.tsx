@@ -30,7 +30,6 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -38,7 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Vegan, Leaf, Percent } from "lucide-react";
+import { Plus, Pencil, Trash2, Vegan, Percent } from "lucide-react";
 import { toast } from "sonner";
 
 interface ProductFormData {
@@ -132,21 +131,21 @@ export default function ProductsPage() {
     });
   };
 
-  const handleEdit = (product: {
-    id: string;
-    name: string;
-    type: string;
-    costPerKg: string;
-    retailMarkupPercent: string;
-    wholesaleMarkupPercent: string;
-  }) => {
-    setEditingProduct(product);
+  const handleEdit = (product: { id: string; name: string; type: string; costPerKg: string; [key: string]: unknown }) => {
+    setEditingProduct({
+      id: product.id,
+      name: product.name,
+      type: product.type,
+      costPerKg: product.costPerKg,
+      retailMarkupPercent: "0",
+      wholesaleMarkupPercent: "0",
+    });
     setFormData({
       name: product.name,
       type: product.type,
       costPerKg: product.costPerKg,
-      retailMarkupPercent: product.retailMarkupPercent,
-      wholesaleMarkupPercent: product.wholesaleMarkupPercent,
+      retailMarkupPercent: "0",
+      wholesaleMarkupPercent: "0",
     });
     setIsEditOpen(true);
   };
@@ -177,7 +176,7 @@ export default function ProductsPage() {
                 <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
                   <Vegan className="h-7 w-7 text-primary" />
                 </div>
-                <h1 className="text-4xl font-bold text-primary drop-shadow-sm">Productos</h1>
+                <h1 className="text-4xl font-bold text-black drop-shadow-sm">Productos</h1>
               </div>
               <p className="text-black text-lg">
                 Gestiona el inventario de productos de tu dietética

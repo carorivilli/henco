@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,8 @@ interface PriceTypeData {
 interface ProductFormData {
   name: string;
   type: string;
+  totalQuantityKg: string;
+  totalPricePaid: string;
   costPerKg: string;
   priceTypes: PriceTypeData[];
 }
@@ -34,9 +36,22 @@ export default function CreateProductPage() {
   const [formData, setFormData] = useState<ProductFormData>({
     name: "",
     type: "",
+    totalQuantityKg: "",
+    totalPricePaid: "",
     costPerKg: "",
     priceTypes: [],
   });
+
+  // Función para calcular el costo por kilogramo automáticamente
+  const calculateCostPerKg = (totalQuantity: string, totalPrice: string): string => {
+    const quantity = parseFloat(totalQuantity) || 0;
+    const price = parseFloat(totalPrice) || 0;
+
+    if (quantity > 0 && price > 0) {
+      return (price / quantity).toFixed(2);
+    }
+    return "0.00";
+  };
 
   const handleNumericInput = (value: string, fieldName: string, priceTypeId?: string) => {
     let newValue = value;
@@ -51,8 +66,12 @@ export default function CreateProductPage() {
       newValue = parts[0] + '.' + parts.slice(1).join('');
     }
 
-    if (fieldName === "costPerKg") {
-      setFormData({ ...formData, costPerKg: newValue });
+    if (fieldName === "totalQuantityKg") {
+      const newCostPerKg = calculateCostPerKg(newValue, formData.totalPricePaid);
+      setFormData({ ...formData, totalQuantityKg: newValue, costPerKg: newCostPerKg });
+    } else if (fieldName === "totalPricePaid") {
+      const newCostPerKg = calculateCostPerKg(formData.totalQuantityKg, newValue);
+      setFormData({ ...formData, totalPricePaid: newValue, costPerKg: newCostPerKg });
     } else if (priceTypeId) {
       // Actualizar porcentaje de un tipo de precio específico
       const updatedPriceTypes = formData.priceTypes.map(pt =>
@@ -65,13 +84,17 @@ export default function CreateProductPage() {
   };
 
   const handleNumericFocus = (fieldName: string, priceTypeId?: string) => {
-    if (fieldName === "costPerKg") {
-      if (formData.costPerKg === "0") {
-        setFormData({ ...formData, costPerKg: "" });
+    if (fieldName === "totalQuantityKg") {
+      if (formData.totalQuantityKg === "0" || formData.totalQuantityKg === "0.00" || formData.totalQuantityKg === "0.000") {
+        setFormData({ ...formData, totalQuantityKg: "" });
+      }
+    } else if (fieldName === "totalPricePaid") {
+      if (formData.totalPricePaid === "0" || formData.totalPricePaid === "0.00") {
+        setFormData({ ...formData, totalPricePaid: "" });
       }
     } else if (priceTypeId) {
       const priceType = formData.priceTypes.find(pt => pt.priceTypeId === priceTypeId);
-      if (priceType && priceType.markupPercent === "0") {
+      if (priceType && (priceType.markupPercent === "0" || priceType.markupPercent === "0.00")) {
         const updatedPriceTypes = formData.priceTypes.map(pt =>
           pt.priceTypeId === priceTypeId
             ? { ...pt, markupPercent: "" }
@@ -86,7 +109,7 @@ export default function CreateProductPage() {
   const { data: priceTypes } = api.priceTypes.getAll.useQuery();
 
   // Inicializar tipos de precio cuando se cargan
-  useState(() => {
+  useEffect(() => {
     if (priceTypes && formData.priceTypes.length === 0) {
       const initialPriceTypes = priceTypes.map(pt => ({
         priceTypeId: pt.id,
@@ -94,7 +117,7 @@ export default function CreateProductPage() {
       }));
       setFormData(prev => ({ ...prev, priceTypes: initialPriceTypes }));
     }
-  });
+  }, [priceTypes, formData.priceTypes.length]);
 
   const createMutation = api.products.create.useMutation({
     onSuccess: () => {
@@ -108,8 +131,13 @@ export default function CreateProductPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.type || !formData.costPerKg) {
+    if (!formData.name || !formData.type || !formData.totalQuantityKg || !formData.totalPricePaid) {
       toast.error("Por favor completa todos los campos requeridos");
+      return;
+    }
+
+    if (parseFloat(formData.totalQuantityKg) <= 0 || parseFloat(formData.totalPricePaid) <= 0) {
+      toast.error("La cantidad y el precio deben ser mayores a cero");
       return;
     }
 
@@ -121,6 +149,8 @@ export default function CreateProductPage() {
     createMutation.mutate({
       name: formData.name,
       type: formData.type,
+      totalQuantityKg: formData.totalQuantityKg,
+      totalPricePaid: formData.totalPricePaid,
       costPerKg: formData.costPerKg,
       priceTypes: validPriceTypes.length > 0 ? validPriceTypes : undefined,
     });
@@ -230,33 +260,102 @@ export default function CreateProductPage() {
                 )}
               </div>
 
-              {/* Cost per Kg */}
-              <div className="space-y-2">
-                <Label
-                  htmlFor="costPerKg"
-                  className="text-gray-700 font-medium flex items-center"
-                >
-                  <DollarSign className="h-4 w-4 mr-2 text-primary" />
-                  Costo por Kilogramo
-                </Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary font-medium">
-                    $
-                  </span>
+              {/* Información de Compra */}
+              <div className="space-y-4 border-t border-gray-200 pt-6">
+                <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                  <DollarSign className="h-5 w-5 mr-2 text-primary" />
+                  Información de Compra
+                </h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Ingresa la cantidad total que compraste y cuánto pagaste por esa cantidad. El sistema calculará automáticamente el costo por kilogramo.
+                </p>
+
+                {/* Cantidad Total */}
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="totalQuantityKg"
+                    className="text-gray-700 font-medium flex items-center"
+                  >
+                    <Vegan className="h-4 w-4 mr-2 text-primary" />
+                    Cantidad Total Comprada (kg)
+                  </Label>
                   <Input
-                    id="costPerKg"
+                    id="totalQuantityKg"
                     type="text"
-                    value={formData.costPerKg}
-                    onChange={(e) => handleNumericInput(e.target.value, "costPerKg")}
-                    onFocus={() => handleNumericFocus("costPerKg")}
-                    placeholder="0.00"
-                    className="pl-8 border-primary focus:border-primary focus:ring-primary"
+                    value={formData.totalQuantityKg}
+                    onChange={(e) => handleNumericInput(e.target.value, "totalQuantityKg")}
+                    onFocus={(e) => {
+                      e.target.dataset.originalValue = e.target.value;
+                      if (e.target.value === "0" || e.target.value === "0.000") {
+                        e.target.select();
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value === "") {
+                        const originalValue = e.target.dataset.originalValue || "0";
+                        handleNumericInput(originalValue, "totalQuantityKg");
+                      }
+                    }}
+                    placeholder="0.000"
+                    className="border-primary focus:border-primary focus:ring-primary"
                     required
                   />
+                  <p className="text-sm text-gray-600">
+                    Ej: Si compraste un bolsón de 25 kg, ingresa &quot;25&quot;
+                  </p>
                 </div>
-                <p className="text-sm text-gray-600">
-                  Ingresa el precio por kilogramo del producto
-                </p>
+
+                {/* Precio Total Pagado */}
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="totalPricePaid"
+                    className="text-gray-700 font-medium flex items-center"
+                  >
+                    <DollarSign className="h-4 w-4 mr-2 text-primary" />
+                    Precio Total Pagado
+                  </Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary font-medium">
+                      $
+                    </span>
+                    <Input
+                      id="totalPricePaid"
+                      type="text"
+                      value={formData.totalPricePaid}
+                      onChange={(e) => handleNumericInput(e.target.value, "totalPricePaid")}
+                      onFocus={(e) => {
+                        e.target.dataset.originalValue = e.target.value;
+                        if (e.target.value === "0" || e.target.value === "0.00") {
+                          e.target.select();
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (e.target.value === "") {
+                          const originalValue = e.target.dataset.originalValue || "0";
+                          handleNumericInput(originalValue, "totalPricePaid");
+                        }
+                      }}
+                      placeholder="0.00"
+                      className="pl-8 border-primary focus:border-primary focus:ring-primary"
+                      required
+                    />
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Cuánto pagaste en total por la cantidad comprada
+                  </p>
+                </div>
+
+                {/* Costo por Kg Calculado */}
+                {formData.costPerKg && formData.costPerKg !== "0.00" && (
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <DollarSign className="h-5 w-5 text-green-600" />
+                      <span className="font-medium text-green-800">
+                        Costo por kilogramo calculado: ${formData.costPerKg}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Price Types Section */}
@@ -279,7 +378,7 @@ export default function CreateProductPage() {
                       const finalPrice = calculateFinalPrice(formData.costPerKg, markupPercent);
 
                       return (
-                        <div key={priceType.id} className="p-4 border border-primary rounded-lg bg-primary/30">
+                        <div key={priceType.id} className="p-4 border border-primary rounded-lg">
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center space-x-2">
                               <Label className="font-medium text-black">
@@ -303,7 +402,18 @@ export default function CreateProductPage() {
                               type="text"
                               value={markupPercent}
                               onChange={(e) => handleNumericInput(e.target.value, "markupPercent", priceType.id)}
-                              onFocus={() => handleNumericFocus("markupPercent", priceType.id)}
+                              onFocus={(e) => {
+                                e.target.dataset.originalValue = e.target.value;
+                                if (e.target.value === "0" || e.target.value === "0.00") {
+                                  e.target.select();
+                                }
+                              }}
+                              onBlur={(e) => {
+                                if (e.target.value === "") {
+                                  const originalValue = e.target.dataset.originalValue || "0";
+                                  handleNumericInput(originalValue, "markupPercent", priceType.id);
+                                }
+                              }}
                               placeholder="0.00"
                               className="pr-8 border-primary focus:border-primary focus:ring-primary"
                             />

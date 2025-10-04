@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChartBar, Package, Blend, TrendingUp, DollarSign, Star } from "lucide-react";
+import { ChartBar, Package, Blend, TrendingUp, DollarSign, Star, Download } from "lucide-react";
 
 type FilterType = "products" | "mixes";
 
@@ -28,12 +28,6 @@ export default function DashboardPage() {
   const [selectedPriceTypeId, setSelectedPriceTypeId] = useState<string>("");
 
   const { data: priceTypes } = api.priceTypes.getAll.useQuery();
-  const { data: products } = api.products.getAllWithPrices.useQuery({
-    priceTypeId: selectedPriceTypeId || undefined,
-  });
-  const { data: mixes } = api.mixes.getAllWithPrices.useQuery({
-    priceTypeId: selectedPriceTypeId || undefined,
-  });
 
   // Establecer tipo de precio por defecto cuando se cargan los datos
   useEffect(() => {
@@ -48,6 +42,40 @@ export default function DashboardPage() {
   }, [priceTypes, selectedPriceTypeId]);
 
   const selectedPriceType = priceTypes?.find(pt => pt.id === selectedPriceTypeId);
+  const isMayorista = selectedPriceType?.name.toLowerCase().includes('mayorista');
+
+  const handleDownloadReport = async () => {
+    try {
+      console.log('Starting PDF download...', {
+        products: products?.length,
+        mixes: mixes?.length,
+        priceTypes: priceTypes?.length,
+        selectedPriceType: selectedPriceType?.name
+      });
+
+      // Dynamically import the PDF generator to avoid SSR issues
+      const { generateProductsReport } = await import('@/lib/pdf-generator');
+
+      // Generate complete report with all price types
+      await generateProductsReport({
+        products: products || [],
+        mixes: mixes || [],
+        priceTypes: priceTypes || [],
+        allPriceTypes: true,
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert(`Error al generar el reporte: ${error instanceof Error ? error.message : 'Error desconocido'}. Por favor, intenta nuevamente.`);
+    }
+  };
+
+  const { data: products } = api.products.getAllWithPrices.useQuery({
+    priceTypeId: selectedPriceTypeId || undefined,
+  });
+  const { data: mixes } = api.mixes.getAllWithPrices.useQuery({
+    priceTypeId: selectedPriceTypeId || undefined,
+    priceTypeName: selectedPriceType?.name || undefined,
+  });
 
   return (
     <div className="min-h-screen bg-white p-6">
@@ -60,13 +88,23 @@ export default function DashboardPage() {
                 <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
                   <ChartBar className="h-7 w-7 text-primary" />
                 </div>
-                <h1 className="text-4xl font-bold text-primary drop-shadow-sm">
+                <h1 className="text-4xl font-bold text-black drop-shadow-sm">
                   Dashboard
                 </h1>
               </div>
               <p className="text-black text-lg">
                 Productos y mix disponibles con precios dinámicos
               </p>
+            </div>
+            <div>
+              <Button
+                onClick={handleDownloadReport}
+                className="shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground"
+                disabled={(!products || products.length === 0) && (!mixes || mixes.length === 0)}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Descargar Reporte PDF
+              </Button>
             </div>
           </div>
         </div>
@@ -132,6 +170,32 @@ export default function DashboardPage() {
           </Card>
         </div>
 
+        {/* Mensaje de advertencia para mayorista */}
+        {isMayorista && (
+          <div className="mb-6">
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <span className="text-amber-600">⚠️</span>
+                <div>
+                  <p className="text-sm text-amber-700 font-medium">
+                    Advertencia: El mínimo de compra para precio mayorista es 5 kg.
+                  </p>
+                  {filter === "products" && (
+                    <p className="text-sm text-amber-700 mt-1">
+                      • Los costos y precios se muestran por la cantidad mínima (5kg).
+                    </p>
+                  )}
+                  {filter === "mixes" && (
+                    <p className="text-sm text-amber-700 mt-1">
+                      • Solo se muestran mix con peso total igual o mayor a 5kg.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Data Table */}
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-primary overflow-hidden">
           <div className="bg-gradient-to-r from-primary to-primary px-6 py-4">
@@ -163,9 +227,14 @@ export default function DashboardPage() {
                   <TableRow className="border-b border-primary bg-primary/50">
                     <TableHead className="text-white font-semibold">Nombre</TableHead>
                     <TableHead className="text-white font-semibold">Tipo</TableHead>
-                    <TableHead className="text-white font-semibold">Costo/Kg</TableHead>
+                    <TableHead className="text-white font-semibold">Peso Total (kg)</TableHead>
+                    <TableHead className="text-white font-semibold">
+                      {isMayorista ? 'Costo por 5kg' : 'Costo/Kg'}
+                    </TableHead>
                     <TableHead className="text-white font-semibold">Aumento</TableHead>
-                    <TableHead className="text-white font-semibold">Precio Final</TableHead>
+                    <TableHead className="text-white font-semibold">
+                      {isMayorista ? 'Precio Final (5kg)' : 'Precio Final'}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -184,27 +253,33 @@ export default function DashboardPage() {
                       </TableCell>
                       <TableCell className="font-semibold text-gray-900">
                         <div className="flex items-center">
+                          <Package className="h-4 w-4 text-blue-600 mr-1" />
+                          {'totalQuantityKg' in product ? product.totalQuantityKg : '0.000'} kg
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-semibold text-gray-900">
+                        <div className="flex items-center">
                           <DollarSign className="h-4 w-4 text-primary mr-1" />
-                          {product.costPerKg}
+                          {isMayorista ? (parseFloat(product.costPerKg) * 5).toFixed(2) : product.costPerKg}
                         </div>
                       </TableCell>
                       <TableCell className="text-gray-700">
                         <div className="flex items-center">
                           <TrendingUp className="h-4 w-4 text-blue-600 mr-1" />
-                          {selectedPriceTypeId && 'markupPercent' in product ? product.markupPercent : '0'}%
+{selectedPriceTypeId && 'markupPercent' in product ? String(product.markupPercent) : '0'}%
                         </div>
                       </TableCell>
                       <TableCell className="font-semibold text-black-800">
                         <div className="flex items-center">
                           <DollarSign className="h-4 w-4 text-primary mr-1" />
-                          {selectedPriceTypeId && 'finalPrice' in product ? product.finalPrice : '0.00'}
+{selectedPriceTypeId && 'finalPrice' in product ? String(product.finalPrice) : '0.00'}
                         </div>
                       </TableCell>
                     </TableRow>
                   ))}
                   {(!products || products.length === 0) && (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-16">
+                      <TableCell colSpan={6} className="text-center py-16">
                         <div className="flex flex-col items-center space-y-4">
                           <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center">
                             <Package className="h-10 w-10 text-primary-foreground" />
@@ -229,8 +304,9 @@ export default function DashboardPage() {
                   <TableRow className="border-b border-primary bg-primary/50">
                     <TableHead className="text-white font-semibold">Nombre</TableHead>
                     <TableHead className="text-white font-semibold">Descripción</TableHead>
+                    <TableHead className="text-white font-semibold">Peso Total (kg)</TableHead>
                     <TableHead className="text-white font-semibold">Costo Total</TableHead>
-                    <TableHead className="text-white font-semibold">Markup %</TableHead>
+                    <TableHead className="text-white font-semibold">Aumento %</TableHead>
                     <TableHead className="text-white font-semibold">Precio Final</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -247,7 +323,7 @@ export default function DashboardPage() {
                         <div className="max-w-xs">
                           {'products' in mix && mix.products && mix.products.length > 0 ? (
                             <div className="flex flex-wrap gap-1">
-                              {mix.products.map((product, index) => (
+                              {mix.products.map((product) => (
                                 <span
                                   key={product.id}
                                   className="inline-block px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium"
@@ -263,6 +339,12 @@ export default function DashboardPage() {
                       </TableCell>
                       <TableCell className="font-semibold text-gray-900">
                         <div className="flex items-center">
+                          <Package className="h-4 w-4 text-blue-600 mr-1" />
+                          {'totalWeight' in mix ? mix.totalWeight : '0.000'} kg
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-semibold text-gray-900">
+                        <div className="flex items-center">
                           <DollarSign className="h-4 w-4 text-primary mr-1" />
                           {mix.totalCost}
                         </div>
@@ -270,20 +352,20 @@ export default function DashboardPage() {
                       <TableCell className="text-gray-700">
                         <div className="flex items-center">
                           <TrendingUp className="h-4 w-4 text-purple-600 mr-1" />
-                          {selectedPriceTypeId && 'markupPercent' in mix ? mix.markupPercent : '0'}%
+{selectedPriceTypeId && 'markupPercent' in mix ? String(mix.markupPercent) : '0'}%
                         </div>
                       </TableCell>
                       <TableCell className="font-semibold text-purple-800">
                         <div className="flex items-center">
                           <DollarSign className="h-4 w-4 text-purple-600 mr-1" />
-                          {selectedPriceTypeId && 'finalPrice' in mix ? mix.finalPrice : '0.00'}
+{selectedPriceTypeId && 'finalPrice' in mix ? String(mix.finalPrice) : '0.00'}
                         </div>
                       </TableCell>
                     </TableRow>
                   ))}
                   {(!mixes || mixes.length === 0) && (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-16">
+                      <TableCell colSpan={6} className="text-center py-16">
                         <div className="flex flex-col items-center space-y-4">
                           <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center">
                             <Blend className="h-10 w-10 text-orange-600" />

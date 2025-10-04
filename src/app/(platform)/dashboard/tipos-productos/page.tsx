@@ -136,7 +136,7 @@ export default function ProductTypesPage() {
                 <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
                   <Tag className="h-7 w-7 text-primary" />
                 </div>
-                <h1 className="text-4xl font-bold text-primary drop-shadow-sm">Tipos de Productos</h1>
+                <h1 className="text-4xl font-bold text-black drop-shadow-sm">Tipos de Productos</h1>
               </div>
               <p className="text-black text-lg">
                 Gestiona los tipos de productos para tu dietética

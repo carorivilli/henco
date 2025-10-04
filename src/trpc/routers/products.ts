@@ -7,6 +7,8 @@ import { eq, and } from "drizzle-orm";
 const createProductSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
   type: z.string().min(1, "El tipo es requerido"),
+  totalQuantityKg: z.string().min(1, "La cantidad total es requerida"),
+  totalPricePaid: z.string().min(1, "El precio total es requerido"),
   costPerKg: z.string().min(1, "El costo por kg es requerido"),
   priceTypes: z.array(z.object({
     priceTypeId: z.string(),
@@ -18,6 +20,8 @@ const updateProductSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1, "El nombre es requerido").optional(),
   type: z.string().min(1, "El tipo es requerido").optional(),
+  totalQuantityKg: z.string().min(1, "La cantidad total es requerida").optional(),
+  totalPricePaid: z.string().min(1, "El precio total es requerido").optional(),
   costPerKg: z.string().min(1, "El costo por kg es requerido").optional(),
   priceTypes: z.array(z.object({
     priceTypeId: z.string(),
@@ -32,6 +36,8 @@ export const productsRouter = createTRPCRouter({
         id: products.id,
         name: products.name,
         type: products.type,
+        totalQuantityKg: products.totalQuantityKg,
+        totalPricePaid: products.totalPricePaid,
         costPerKg: products.costPerKg,
         createdAt: products.createdAt,
         updatedAt: products.updatedAt,
@@ -52,6 +58,8 @@ export const productsRouter = createTRPCRouter({
           id: products.id,
           name: products.name,
           type: products.type,
+          totalQuantityKg: products.totalQuantityKg,
+          totalPricePaid: products.totalPricePaid,
           costPerKg: products.costPerKg,
           createdAt: products.createdAt,
           updatedAt: products.updatedAt,
@@ -130,6 +138,8 @@ export const productsRouter = createTRPCRouter({
         .values({
           name: input.name,
           type: input.type,
+          totalQuantityKg: input.totalQuantityKg,
+          totalPricePaid: input.totalPricePaid,
           costPerKg: input.costPerKg,
           updatedAt: new Date(),
         })
@@ -168,12 +178,21 @@ export const productsRouter = createTRPCRouter({
       }
 
       // Actualizar datos básicos del producto
-      const updateData: { updatedAt: Date; name?: string; type?: string; costPerKg?: string } = {
+      const updateData: {
+        updatedAt: Date;
+        name?: string;
+        type?: string;
+        totalQuantityKg?: string;
+        totalPricePaid?: string;
+        costPerKg?: string;
+      } = {
         updatedAt: new Date(),
       };
 
       if (input.name) updateData.name = input.name;
       if (input.type) updateData.type = input.type;
+      if (input.totalQuantityKg) updateData.totalQuantityKg = input.totalQuantityKg;
+      if (input.totalPricePaid) updateData.totalPricePaid = input.totalPricePaid;
       if (input.costPerKg) updateData.costPerKg = input.costPerKg;
 
       const [updatedProduct] = await db

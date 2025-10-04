@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, ShoppingCart, Blend, Leaf, Vegan, Pencil, Percent } from "lucide-react";
+import { Plus, Trash2, ShoppingCart, Blend, Leaf, Vegan, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 interface ProductToMixData {
@@ -46,16 +46,6 @@ interface ProductToMixData {
   quantityKg: string;
 }
 
-interface PriceTypeData {
-  priceTypeId: string;
-  markupPercent: string;
-}
-
-interface MixFormData {
-  name: string;
-  productIds: string[];
-  priceTypes: PriceTypeData[];
-}
 
 export default function MixesPage() {
   const router = useRouter();
@@ -77,7 +67,6 @@ export default function MixesPage() {
   };
 
 
-  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteMixConfirmOpen, setDeleteMixConfirmOpen] = useState(false);
@@ -88,19 +77,9 @@ export default function MixesPage() {
     name: string;
     totalCost: string;
   } | null>(null);
-  const [editingMix, setEditingMix] = useState<{
-    id: string;
-    name: string;
-    totalCost: string;
-  } | null>(null);
   const [productFormData, setProductFormData] = useState<ProductToMixData>({
     productId: "",
     quantityKg: "",
-  });
-  const [formData, setFormData] = useState<MixFormData>({
-    name: "",
-    productIds: [],
-    priceTypes: [],
   });
 
   const { data: mixes, refetch: refetchMixes } = api.mixes.getAll.useQuery();
@@ -113,26 +92,6 @@ export default function MixesPage() {
 
 
 
-  const updateMutation = api.mixes.update.useMutation({
-    onSuccess: () => {
-      toast.success("Mix actualizado exitosamente");
-      setIsEditOpen(false);
-      setEditingMix(null);
-      const initialPriceTypes = priceTypes ? priceTypes.map(pt => ({
-        priceTypeId: pt.id,
-        markupPercent: "0",
-      })) : [];
-      setFormData({
-        name: "",
-        productIds: [],
-        priceTypes: initialPriceTypes,
-      });
-      refetchMixes();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
 
 
   const addProductMutation = api.mixes.addProduct.useMutation({
@@ -181,97 +140,6 @@ export default function MixesPage() {
     },
   });
 
-  const handleNumericInput = (value: string, priceTypeId: string) => {
-    let newValue = value;
-    // Permitir solo números, puntos decimales y comas (convertir comas a puntos)
-    newValue = newValue.replace(/,/g, '.');
-    newValue = newValue.replace(/[^0-9.]/g, '');
-
-    // Evitar múltiples puntos decimales
-    const parts = newValue.split('.');
-    if (parts.length > 2) {
-      newValue = parts[0] + '.' + parts.slice(1).join('');
-    }
-
-    const updatedPriceTypes = formData.priceTypes.map(pt =>
-      pt.priceTypeId === priceTypeId ? { ...pt, markupPercent: newValue } : pt
-    );
-
-    setFormData({ ...formData, priceTypes: updatedPriceTypes });
-  };
-
-  const handleNumericFocus = (priceTypeId: string) => {
-    const priceType = formData.priceTypes.find(pt => pt.priceTypeId === priceTypeId);
-    if (priceType && priceType.markupPercent === "0") {
-      const updatedPriceTypes = formData.priceTypes.map(pt =>
-        pt.priceTypeId === priceTypeId ? { ...pt, markupPercent: "" } : pt
-      );
-      setFormData({ ...formData, priceTypes: updatedPriceTypes });
-    }
-  };
-
-  const calculateFinalPrice = (totalCost: number, markupPercent: string): string => {
-    const markup = parseFloat(markupPercent) || 0;
-    const finalPrice = totalCost * (1 + markup / 100);
-    return finalPrice.toFixed(2);
-  };
-
-  // Cargar precios existentes cuando se abre el diálogo de edición
-  useEffect(() => {
-    if (isEditOpen && editingMix && mixDetails && priceTypes) {
-      const updatedPriceTypes = priceTypes.map(pt => {
-        const existingPrice = mixDetails.priceTypes?.find(mp => mp.priceTypeId === pt.id);
-        return {
-          priceTypeId: pt.id,
-          markupPercent: existingPrice?.markupPercent || "0",
-        };
-      });
-
-      setFormData(prev => ({
-        ...prev,
-        priceTypes: updatedPriceTypes,
-      }));
-    }
-  }, [isEditOpen, editingMix, mixDetails, priceTypes]);
-
-
-  const handleUpdate = () => {
-    if (!editingMix) return;
-
-    // Filtrar solo los tipos de precio que tienen un porcentaje configurado
-    const validPriceTypes = formData.priceTypes.filter(pt =>
-      pt.markupPercent && pt.markupPercent !== "0"
-    );
-
-    updateMutation.mutate({
-      id: editingMix.id,
-      name: formData.name,
-      priceTypes: validPriceTypes.length > 0 ? validPriceTypes : undefined,
-    });
-  };
-
-  const handleEdit = (mix: {
-    id: string;
-    name: string;
-    totalCost: string;
-  }) => {
-    setEditingMix(mix);
-    setSelectedMix({ id: mix.id, name: mix.name, totalCost: mix.totalCost }); // Para cargar los detalles del mix
-
-    // Inicializar tipos de precio para edición
-    // Los precios actuales se cargarán cuando mixDetails esté disponible
-    const initialPriceTypes = priceTypes ? priceTypes.map(pt => ({
-      priceTypeId: pt.id,
-      markupPercent: "0",
-    })) : [];
-
-    setFormData({
-      name: mix.name,
-      productIds: [],
-      priceTypes: initialPriceTypes,
-    });
-    setIsEditOpen(true);
-  };
 
   const handleAddProduct = () => {
     if (!selectedMix) return;
@@ -327,7 +195,7 @@ export default function MixesPage() {
                 <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
                   <Blend className="h-7 w-7 text-primary" />
                 </div>
-                <h1 className="text-4xl font-bold text-primary drop-shadow-sm">Mix de Productos</h1>
+                <h1 className="text-4xl font-bold text-black drop-shadow-sm">Mix de Productos</h1>
               </div>
               <p className="text-black text-lg">
                 Crea y gestiona mezclas personalizadas de productos de tu dietética
@@ -359,7 +227,7 @@ export default function MixesPage() {
                     key={mix.id}
                     className={`p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
                       selectedMix?.id === mix.id
-                        ? "bg-primary/20 border-primary shadow-md"
+                        ? "border-primary shadow-md"
                         : "border-primary/30 hover:bg-primary/10 hover:border-primary/50"
                     }`}
                     onClick={() => setSelectedMix(mix)}
@@ -380,7 +248,7 @@ export default function MixesPage() {
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleEdit(mix);
+                            router.push(`/dashboard/mix/${mix.id}/editar`);
                           }}
                           className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                         >
@@ -487,11 +355,17 @@ export default function MixesPage() {
                                 quantityKg: cleanedValue,
                               });
                             }}
-                            onFocus={() => {
-                              if (productFormData.quantityKg === "0") {
+                            onFocus={(e) => {
+                              e.target.dataset.originalValue = e.target.value;
+                              if (e.target.value === "0" || e.target.value === "0.000") {
+                                e.target.select();
+                              }
+                            }}
+                            onBlur={(e) => {
+                              if (e.target.value === "") {
                                 setProductFormData({
                                   ...productFormData,
-                                  quantityKg: "",
+                                  quantityKg: e.target.dataset.originalValue || "0",
                                 });
                               }
                             }}
@@ -624,179 +498,6 @@ export default function MixesPage() {
           </div>
         </div>
 
-        {/* Edit Mix Dialog */}
-        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-          <DialogContent className="border-primary bg-white/95 backdrop-blur-sm">
-            <DialogHeader>
-              <DialogTitle className="text-primary flex items-center">
-                <Pencil className="h-5 w-5 mr-2" />
-                Editar Mix
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="edit-name" className="text-gray-700 font-medium flex items-center">
-                  <Blend className="h-4 w-4 mr-2" />
-                  Nombre del Mix
-                </Label>
-                <Input
-                  id="edit-name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Ej: Mix energético, Mix proteico..."
-                  className="border-primary focus:border-primary focus:ring-primary"
-                />
-              </div>
-
-
-              {/* Price Types Section for Edit */}
-              {priceTypes && priceTypes.length > 0 && (
-                <div className="space-y-4">
-                  <div className="border-t border-gray-200 pt-4">
-                    <Label className="text-gray-700 font-medium flex items-center text-lg mb-4">
-                      <Percent className="h-5 w-5 mr-2" />
-                      Configuración de Precios por Tipo
-                    </Label>
-                    <p className="text-sm text-gray-600 mb-4">
-                      Configura el porcentaje de aumento para cada tipo de precio. Deja en 0 los tipos que no apliquen.
-                    </p>
-                  </div>
-
-                  <div className="grid gap-4">
-                    {priceTypes.map((priceType) => {
-                      const currentPriceType = formData.priceTypes.find(pt => pt.priceTypeId === priceType.id);
-                      const markupPercent = currentPriceType?.markupPercent || "0";
-                      const totalCost = editingMix ? parseFloat(editingMix.totalCost) : 0;
-                      const finalPrice = calculateFinalPrice(totalCost, markupPercent);
-
-                      return (
-                        <div key={priceType.id} className="p-4 border border-primary rounded-lg bg-primary/30">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center space-x-2">
-                              <Label className="font-medium text-gray-800">
-                                {priceType.name}
-                              </Label>
-                              {priceType.isDefault && (
-                                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">
-                                  Por Defecto
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-sm text-gray-600">
-                              Precio final: <span className="font-semibold text-primary">${finalPrice}</span>
-                            </div>
-                          </div>
-                          {priceType.description && (
-                            <p className="text-sm text-gray-600 mb-3">{priceType.description}</p>
-                          )}
-                          <div className="relative">
-                            <Input
-                              type="text"
-                              value={markupPercent}
-                              onChange={(e) => handleNumericInput(e.target.value, priceType.id)}
-                              onFocus={() => handleNumericFocus(priceType.id)}
-                              placeholder="0.00"
-                              className="pr-8 border-primary focus:border-primary focus:ring-primary"
-                            />
-                            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary font-medium">
-                              %
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {(!priceTypes || priceTypes.length === 0) && (
-                <div className="p-4 border border-amber-200 rounded-lg bg-amber-50/30">
-                  <p className="text-sm text-amber-700">
-                    No hay tipos de precio configurados.
-                    <a href="/dashboard/tipos-precio" className="text-primary hover:underline ml-1">
-                      Crear tipos de precio
-                    </a>
-                  </p>
-                </div>
-              )}
-
-
-              {/* Edit Products Section */}
-              {editingMix && (
-                <div>
-                  <Label className="text-gray-700 font-medium flex items-center mb-3">
-                    <Vegan className="h-4 w-4 mr-2" />
-                    Productos en el Mix
-                  </Label>
-                  <div className="border border-gray-200 rounded-lg p-4 max-h-48 overflow-y-auto bg-gray-50/30">
-                    {mixDetails?.products?.map((mixProduct) => (
-                      <div key={mixProduct.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
-                        <div className="flex-1">
-                          <span className="font-medium text-gray-800">{mixProduct.product.name}</span>
-                          <span className="text-sm text-gray-600 ml-2">({mixProduct.product.type})</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Input
-                            type="text"
-                            value={mixProduct.quantityKg}
-                            onChange={(e) => {
-                              const cleanedValue = handleQuantityInput(e.target.value);
-                              const newQuantity = parseFloat(cleanedValue) || 0;
-                              if (newQuantity > 0) {
-                                updateProductMutation.mutate({
-                                  id: mixProduct.id,
-                                  quantityKg: newQuantity
-                                });
-                              }
-                            }}
-                            onFocus={(e) => {
-                              if (e.target.value === "0" || e.target.value === "0.000") {
-                                e.target.value = "";
-                              }
-                            }}
-                            className="w-20 text-sm border-gray-200 focus:border-primary focus:ring-primary"
-                          />
-                          <span className="text-sm text-gray-600">kg</span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleRemoveProduct(mixProduct.id)}
-                            className="border-red-300 text-red-700 hover:bg-red-50"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                    {(!mixDetails?.products || mixDetails.products.length === 0) && (
-                      <p className="text-gray-500 text-sm text-center py-4">
-                        Este mix no tiene productos agregados
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <Button
-                onClick={handleUpdate}
-                className="w-full"
-                disabled={updateMutation.isPending}
-              >
-                {updateMutation.isPending ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Actualizando...
-                  </>
-                ) : (
-                  <>
-                    <Pencil className="h-4 w-4 mr-2" />
-                    Actualizar Mix
-                  </>
-                )}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
 
         {/* Delete Product Confirmation */}
         <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
