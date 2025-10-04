@@ -48,7 +48,7 @@ export default function PriceTypesPage() {
   const [editingPriceType, setEditingPriceType] = useState<{
     id: string;
     name: string;
-    description: string;
+    description: string | null;
     isDefault: boolean;
   } | null>(null);
   const [formData, setFormData] = useState<PriceTypeFormData>({
@@ -119,7 +119,7 @@ export default function PriceTypesPage() {
   const handleEdit = (priceType: {
     id: string;
     name: string;
-    description: string;
+    description: string | null;
     isDefault: boolean;
   }) => {
     setEditingPriceType(priceType);
@@ -159,7 +159,7 @@ export default function PriceTypesPage() {
                 <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
                   <DollarSign className="h-7 w-7 text-primary" />
                 </div>
-                <h1 className="text-4xl font-bold text-primary drop-shadow-sm">Tipos de Precio</h1>
+                <h1 className="text-4xl font-bold text-black drop-shadow-sm">Tipos de Precio</h1>
               </div>
               <p className="text-black text-lg">
                 Gestiona los diferentes tipos de precio para productos y mixes

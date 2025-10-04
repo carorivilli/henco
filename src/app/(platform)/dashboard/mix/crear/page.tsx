@@ -52,6 +52,29 @@ export default function CreateMixPage() {
     }
   }, [priceTypes, formData.priceTypes.length]);
 
+  // Resetear precio mayorista cuando el peso cambia y se vuelve insuficiente
+  useEffect(() => {
+    if (priceTypes && formData.priceTypes.length > 0) {
+      const currentTotalWeight = calculateTotalWeight();
+      const updatedPriceTypes = formData.priceTypes.map(pt => {
+        const priceType = priceTypes.find(p => p.id === pt.priceTypeId);
+        const isMayorista = priceType?.name.toLowerCase().includes('mayorista');
+        const shouldReset = isMayorista && currentTotalWeight < 5 && pt.markupPercent !== "0";
+
+        return shouldReset ? { ...pt, markupPercent: "0" } : pt;
+      });
+
+      // Solo actualizar si hay cambios
+      const hasChanges = updatedPriceTypes.some((pt, index) =>
+        pt.markupPercent !== formData.priceTypes[index]?.markupPercent
+      );
+
+      if (hasChanges) {
+        setFormData(prev => ({ ...prev, priceTypes: updatedPriceTypes }));
+      }
+    }
+  }, [formData.products, priceTypes]);
+
   const handleNumericInput = (value: string, priceTypeId?: string) => {
     let newValue = value;
 
@@ -66,6 +89,17 @@ export default function CreateMixPage() {
     }
 
     if (priceTypeId) {
+      // Verificar si es mayorista y tiene peso insuficiente
+      const priceType = priceTypes?.find(p => p.id === priceTypeId);
+      const isMayorista = priceType?.name.toLowerCase().includes('mayorista');
+      const currentTotalWeight = calculateTotalWeight();
+      const isDisabled = isMayorista && currentTotalWeight < 5;
+
+      // Si está deshabilitado, no permitir cambios
+      if (isDisabled) {
+        return;
+      }
+
       // Actualizar porcentaje de un tipo de precio específico
       const updatedPriceTypes = formData.priceTypes.map(pt =>
         pt.priceTypeId === priceTypeId
@@ -143,6 +177,12 @@ export default function CreateMixPage() {
     }, 0);
   };
 
+  const calculateTotalWeight = () => {
+    return formData.products.reduce((total, product) => {
+      return total + parseFloat(product.quantityKg || "0");
+    }, 0);
+  };
+
   const calculateFinalPrice = (totalCost: number, markupPercent: string) => {
     const markup = parseFloat(markupPercent) || 0;
     const finalPrice = totalCost * (1 + markup / 100);
@@ -176,10 +216,17 @@ export default function CreateMixPage() {
       quantityKg: p.quantityKg,
     }));
 
-    // Filtrar solo los tipos de precio que tienen un porcentaje configurado
-    const validPriceTypes = formData.priceTypes.filter(pt =>
-      pt.markupPercent && pt.markupPercent !== "0"
-    );
+    // Filtrar solo los tipos de precio que tienen un porcentaje configurado y que no sean mayorista con peso insuficiente
+    const validPriceTypes = formData.priceTypes.filter(pt => {
+      if (!pt.markupPercent || pt.markupPercent === "0") return false;
+
+      // Verificar si es mayorista y tiene peso insuficiente
+      const priceType = priceTypes?.find(p => p.id === pt.priceTypeId);
+      const isMayorista = priceType?.name.toLowerCase().includes('mayorista');
+      const hasInsufficientWeight = isMayorista && totalWeight < 5;
+
+      return !hasInsufficientWeight;
+    });
 
     createMutation.mutate({
       name: formData.name,
@@ -193,6 +240,7 @@ export default function CreateMixPage() {
   };
 
   const totalCost = calculateTotalCost();
+  const totalWeight = calculateTotalWeight();
 
   return (
     <div className="min-h-screen bg-white p-6">
@@ -322,6 +370,17 @@ export default function CreateMixPage() {
                           type="text"
                           value={product.quantityKg}
                           onChange={(e) => handleQuantityChange(product.productId, e.target.value)}
+                          onFocus={(e) => {
+                            e.target.dataset.originalValue = e.target.value;
+                            if (e.target.value === "0" || e.target.value === "0.000" || e.target.value === "1") {
+                              e.target.select();
+                            }
+                          }}
+                          onBlur={(e) => {
+                            if (e.target.value === "") {
+                              handleQuantityChange(product.productId, e.target.dataset.originalValue || "1");
+                            }
+                          }}
                           className="w-24 text-center border-amber-200 focus:border-amber-500 focus:ring-amber-500"
                           placeholder="1.0"
                         />
@@ -374,9 +433,11 @@ export default function CreateMixPage() {
                     const currentPriceType = formData.priceTypes.find(pt => pt.priceTypeId === priceType.id);
                     const markupPercent = currentPriceType?.markupPercent || "0";
                     const finalPrice = calculateFinalPrice(totalCost, markupPercent);
+                    const isMayorista = priceType.name.toLowerCase().includes('mayorista');
+                    const isDisabled = isMayorista && totalWeight < 5;
 
                     return (
-                      <div key={priceType.id} className="p-6 border border-green-200 rounded-lg bg-green-50/30">
+                      <div key={priceType.id} className={`p-6 border rounded-lg ${isDisabled ? 'border-gray-300 bg-gray-50/30' : 'border-green-200 bg-green-50/30'}`}>
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center space-x-2">
                             <Label className="font-medium text-gray-800 text-lg">
@@ -398,18 +459,43 @@ export default function CreateMixPage() {
                           <p className="text-sm text-gray-600 mb-4">{priceType.description}</p>
                         )}
 
+                        {isDisabled && (
+                          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-amber-600">⚠️</span>
+                              <p className="text-sm text-amber-700 font-medium">
+                                Este tipo de precio requiere un peso mínimo de 5kg. Peso actual: {totalWeight.toFixed(3)}kg
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
                         <div className="flex items-center space-x-4">
-                          <Label className="text-gray-700 font-medium">Porcentaje de aumento:</Label>
+                          <Label className={`font-medium ${isDisabled ? 'text-gray-500' : 'text-gray-700'}`}>Porcentaje de aumento:</Label>
                           <div className="relative flex-1 max-w-xs">
                             <Input
                               type="text"
-                              value={markupPercent}
-                              onChange={(e) => handleNumericInput(e.target.value, priceType.id)}
-                              onFocus={() => handleNumericFocus(priceType.id)}
+                              value={isDisabled ? "0" : markupPercent}
+                              onChange={(e) => !isDisabled && handleNumericInput(e.target.value, priceType.id)}
+                              onFocus={(e) => {
+                                if (!isDisabled) {
+                                  e.target.dataset.originalValue = e.target.value;
+                                  if (e.target.value === "0" || e.target.value === "0.00") {
+                                    e.target.select();
+                                  }
+                                }
+                              }}
+                              onBlur={(e) => {
+                                if (!isDisabled && e.target.value === "") {
+                                  const originalValue = e.target.dataset.originalValue || "0";
+                                  handleNumericInput(originalValue, priceType.id);
+                                }
+                              }}
                               placeholder="0.00"
-                              className="pr-8 border-green-200 focus:border-green-500 focus:ring-green-500"
+                              disabled={isDisabled}
+                              className={`pr-8 ${isDisabled ? 'bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed' : 'border-green-200 focus:border-green-500 focus:ring-green-500'}`}
                             />
-                            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600 font-medium">
+                            <span className={`absolute right-3 top-1/2 transform -translate-y-1/2 font-medium ${isDisabled ? 'text-gray-500' : 'text-green-600'}`}>
                               %
                             </span>
                           </div>

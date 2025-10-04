@@ -35,6 +35,8 @@ export const products = pgTable("products", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
   type: text("type").notNull(),
+  totalQuantityKg: decimal("total_quantity_kg", { precision: 10, scale: 3 }).notNull(),
+  totalPricePaid: decimal("total_price_paid", { precision: 10, scale: 2 }).notNull(),
   costPerKg: decimal("cost_per_kg", { precision: 10, scale: 2 }).notNull(),
   createdAt: timestamp("created_at")
     .$defaultFn(() => new Date())
