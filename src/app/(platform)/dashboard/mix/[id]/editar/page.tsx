@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
+import Image from "next/image";
 import { api } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -223,7 +224,8 @@ export default function EditMixPage() {
 
   // Cargar datos del mix cuando se obtiene la información
   useEffect(() => {
-    if (mix && priceTypes) {
+    if (mix && priceTypes && formData.priceTypes.length === 0) {
+      // Solo inicializar si no hay priceTypes cargados (primera carga)
       const updatedPriceTypes = priceTypes.map(pt => {
         const existingPrice = mix.priceTypes?.find(mp => mp.priceTypeId === pt.id);
         return {
@@ -238,7 +240,27 @@ export default function EditMixPage() {
         priceTypes: updatedPriceTypes,
       });
     }
-  }, [mix, priceTypes]);
+  }, [mix, priceTypes, formData.priceTypes.length]);
+
+  // Detectar y agregar nuevos tipos de precio sin sobrescribir los existentes
+  useEffect(() => {
+    if (priceTypes && formData.priceTypes.length > 0) {
+      const currentPriceTypeIds = new Set(formData.priceTypes.map(pt => pt.priceTypeId));
+      const newPriceTypes = priceTypes.filter(pt => !currentPriceTypeIds.has(pt.id));
+
+      if (newPriceTypes.length > 0) {
+        const additionalPriceTypes = newPriceTypes.map(pt => ({
+          priceTypeId: pt.id,
+          markupPercent: "0",
+        }));
+
+        setFormData(prev => ({
+          ...prev,
+          priceTypes: [...prev.priceTypes, ...additionalPriceTypes],
+        }));
+      }
+    }
+  }, [priceTypes, formData.priceTypes]);
 
   // Resetear precios mayoristas cuando el peso es menor a 5kg
   useEffect(() => {
@@ -354,8 +376,14 @@ export default function EditMixPage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center space-x-3 mb-2">
-                <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-                  <Pencil className="h-7 w-7 text-primary" />
+                <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+                  <Image
+                    src="/logoHencoIcono.png"
+                    alt="Henco Logo"
+                    width={48}
+                    height={48}
+                    className="object-contain"
+                  />
                 </div>
                 <h1 className="text-4xl font-bold text-black drop-shadow-sm">Editar Mix</h1>
               </div>

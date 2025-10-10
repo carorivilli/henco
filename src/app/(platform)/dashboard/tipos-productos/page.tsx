@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { api } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -133,8 +134,14 @@ export default function ProductTypesPage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center space-x-3 mb-2">
-                <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-                  <Tag className="h-7 w-7 text-primary" />
+                <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+                  <Image
+                    src="/logoHencoIcono.png"
+                    alt="Henco Logo"
+                    width={48}
+                    height={48}
+                    className="object-contain"
+                  />
                 </div>
                 <h1 className="text-4xl font-bold text-black drop-shadow-sm">Tipos de Productos</h1>
               </div>

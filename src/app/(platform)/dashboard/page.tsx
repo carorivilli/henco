@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { api } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -69,6 +70,35 @@ export default function DashboardPage() {
     }
   };
 
+  const handleDownloadFilteredReport = async () => {
+    try {
+      if (!selectedPriceType) {
+        alert('Por favor selecciona un tipo de precio primero');
+        return;
+      }
+
+      console.log('Starting filtered PDF download...', {
+        products: products?.length,
+        mixes: mixes?.length,
+        selectedPriceType: selectedPriceType?.name
+      });
+
+      // Dynamically import the PDF generator to avoid SSR issues
+      const { generateProductsReport } = await import('@/lib/pdf-generator');
+
+      // Generate filtered report with only selected price type
+      await generateProductsReport({
+        products: products || [],
+        mixes: mixes || [],
+        priceTypes: [selectedPriceType],
+        allPriceTypes: true,
+      });
+    } catch (error) {
+      console.error('Error generating filtered PDF:', error);
+      alert(`Error al generar el reporte filtrado: ${error instanceof Error ? error.message : 'Error desconocido'}. Por favor, intenta nuevamente.`);
+    }
+  };
+
   const { data: products } = api.products.getAllWithPrices.useQuery({
     priceTypeId: selectedPriceTypeId || undefined,
   });
@@ -85,8 +115,14 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center space-x-3 mb-2">
-                <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-                  <ChartBar className="h-7 w-7 text-primary" />
+                <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+                  <Image
+                    src="/logoHencoIcono.png"
+                    alt="Henco Logo"
+                    width={48}
+                    height={48}
+                    className="object-contain"
+                  />
                 </div>
                 <h1 className="text-4xl font-bold text-black drop-shadow-sm">
                   Dashboard
@@ -96,14 +132,22 @@ export default function DashboardPage() {
                 Productos y mix disponibles con precios dinámicos
               </p>
             </div>
-            <div>
+            <div className="flex gap-3">
               <Button
                 onClick={handleDownloadReport}
                 className="shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground"
                 disabled={(!products || products.length === 0) && (!mixes || mixes.length === 0)}
               >
                 <Download className="h-4 w-4 mr-2" />
-                Descargar Reporte PDF
+                Descargar lista de precios
+              </Button>
+              <Button
+                onClick={handleDownloadFilteredReport}
+                className="shadow-lg bg-secondary hover:bg-secondary/90 text-secondary-foreground"
+                disabled={!selectedPriceTypeId || ((!products || products.length === 0) && (!mixes || mixes.length === 0))}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Descargar lista filtrada
               </Button>
             </div>
           </div>
