@@ -102,7 +102,7 @@ export const generateProductsReport = async (data: ReportData): Promise<void> =>
     doc.setTextColor(colors.white[0], colors.white[1], colors.white[2]);
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('REPORTE COMPLETO DE PRODUCTOS Y MIX', 45, 18);
+    doc.text('LISTA DE PRECIOS - CATÁLOGO', 45, 18);
 
     // Date
     doc.setFontSize(10);
@@ -155,8 +155,8 @@ export const generateProductsReport = async (data: ReportData): Promise<void> =>
 
           doc.setFontSize(9);
           doc.setFont('helvetica', 'normal');
-          doc.text('- Los productos se muestran con costo y precio por 5kg', 15, currentY + 13);
-          doc.text('- Solo se incluyen mix con peso total igual o mayor a 5kg', 15, currentY + 17);
+          doc.text('- Los productos se muestran con precio por kilogramo y precio por 5kg', 15, currentY + 13);
+          doc.text('- Los mix se muestran con precio por 5kg', 15, currentY + 17);
           currentY += 27;
         }
 
@@ -169,21 +169,23 @@ export const generateProductsReport = async (data: ReportData): Promise<void> =>
 
         if (products && products.length > 0) {
           const productHeaders = isMayorista
-            ? [['Nombre', 'Tipo', 'Peso Total (kg)', 'Costo por 5kg', 'Aumento %', 'Precio Final (5kg)']]
-            : [['Nombre', 'Tipo', 'Peso Total (kg)', 'Costo/Kg', 'Aumento %', 'Precio Final']];
+            ? [['Nombre', 'Tipo', 'Precio por 5kg']]
+            : [['Nombre', 'Tipo', 'Precio Final']];
 
-          const productData = products.map(product => [
-            String(product.name || ''),
-            String(product.type || ''),
-            String(product.totalQuantityKg || '0.000'),
-            isMayorista
-              ? `$${(parseFloat(product.costPerKg || '0') * 5).toFixed(2)}`
-              : `$${String(product.costPerKg || '0.00')}`,
-            `${String(product.markupPercent || '0')}%`,
-            isMayorista
-              ? `$${(parseFloat(product.finalPrice || '0') * 5).toFixed(2)}`
-              : `$${String(product.finalPrice || '0.00')}`
-          ]);
+          const productData = products.map(product => {
+            const baseData = [
+              String(product.name || ''),
+              String(product.type || '')
+            ];
+
+            if (isMayorista) {
+              baseData.push(`$${(parseFloat(product.finalPrice || '0') * 5).toFixed(2)}`);
+            } else {
+              baseData.push(`$${String(product.finalPrice || '0.00')}`);
+            }
+
+            return baseData;
+          });
 
           autoTable(doc, {
             head: productHeaders,
@@ -229,15 +231,17 @@ export const generateProductsReport = async (data: ReportData): Promise<void> =>
             : mixes;
 
           if (filteredMixes.length > 0) {
-            const mixHeaders = [['Nombre', 'Productos', 'Peso Total (kg)', 'Costo Total', 'Aumento %', 'Precio Final']];
-            const mixData = filteredMixes.map(mix => [
-              String(mix.name || ''),
-              String(mix.products?.map(p => p.name).join(', ') || 'Sin productos'),
-              String(mix.totalWeight || '0.000'),
-              `$${String(mix.totalCost || '0.00')}`,
-              `${String(mix.markupPercent || '0')}%`,
-              `$${String(mix.finalPrice || '0.00')}`
-            ]);
+            const mixHeaders = [['Nombre', 'Precio Final por 5kg']];
+            const mixData = filteredMixes.map(mix => {
+              const finalPrice = parseFloat(mix.finalPrice || '0');
+              const totalWeight = parseFloat(mix.totalWeight || '1');
+              const pricePer5kg = (finalPrice / totalWeight) * 5;
+
+              return [
+                String(mix.name || ''),
+                `$${pricePer5kg.toFixed(2)}`
+              ];
+            });
 
             autoTable(doc, {
               head: mixHeaders,
@@ -287,13 +291,10 @@ export const generateProductsReport = async (data: ReportData): Promise<void> =>
         doc.text('PRODUCTOS', 15, currentY);
         currentY += 10;
 
-        const productHeaders = [['Nombre', 'Tipo', 'Peso Total (kg)', 'Costo/Kg', 'Aumento %', 'Precio Final']];
+        const productHeaders = [['Nombre', 'Tipo', 'Precio Final']];
         const productData = products.map(product => [
           String(product.name || ''),
           String(product.type || ''),
-          String(product.totalQuantityKg || '0.000'),
-          `$${String(product.costPerKg || '0.00')}`,
-          `${String(product.markupPercent || '0')}%`,
           `$${String(product.finalPrice || '0.00')}`
         ]);
 
@@ -343,7 +344,7 @@ export const generateProductsReport = async (data: ReportData): Promise<void> =>
     }
 
     // Download the PDF
-    const fileName = `reporte-completo-henco-${new Date().toISOString().split('T')[0]}.pdf`;
+    const fileName = `lista-precios-henco-${new Date().toISOString().split('T')[0]}.pdf`;
     console.log('Saving PDF with filename:', fileName);
     doc.save(fileName);
     console.log('PDF generation completed successfully');

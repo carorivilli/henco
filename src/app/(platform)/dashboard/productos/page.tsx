@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { api } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,19 +41,40 @@ import {
 import { Plus, Pencil, Trash2, Vegan, Percent } from "lucide-react";
 import { toast } from "sonner";
 
+interface PriceTypeData {
+  priceTypeId: string;
+  markupPercent: string;
+}
+
 interface ProductFormData {
   name: string;
   type: string;
   costPerKg: string;
-  retailMarkupPercent: string;
-  wholesaleMarkupPercent: string;
+  priceTypes: PriceTypeData[];
 }
 
 export default function ProductsPage() {
   const router = useRouter();
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<ProductFormData>({
+    name: "",
+    type: "",
+    costPerKg: "",
+    priceTypes: [],
+  });
 
-  const handleNumericInput = (value: string, fieldName: keyof ProductFormData) => {
+  const { data: products, refetch } = api.products.getAll.useQuery();
+  const { data: productTypes } = api.productTypes.getAll.useQuery();
+  const { data: priceTypes } = api.priceTypes.getAll.useQuery();
+  const { data: editingProduct } = api.products.getById.useQuery(
+    { id: editingProductId! },
+    { enabled: !!editingProductId }
+  );
+
+  const handleNumericInput = (value: string, fieldName: string, priceTypeId?: string) => {
     let newValue = value;
 
     // Permitir solo números, puntos decimales y comas (convertir comas a puntos)
@@ -65,43 +87,42 @@ export default function ProductsPage() {
       newValue = parts[0] + '.' + parts.slice(1).join('');
     }
 
-    setFormData({ ...formData, [fieldName]: newValue });
-  };
-
-  const handleNumericFocus = (fieldName: keyof ProductFormData) => {
-    const currentValue = formData[fieldName] as string;
-    if (currentValue === "0") {
-      setFormData({ ...formData, [fieldName]: "" });
+    if (fieldName === "costPerKg") {
+      setFormData({ ...formData, costPerKg: newValue });
+    } else if (priceTypeId) {
+      // Actualizar porcentaje de un tipo de precio específico
+      const updatedPriceTypes = formData.priceTypes.map(pt =>
+        pt.priceTypeId === priceTypeId
+          ? { ...pt, markupPercent: newValue }
+          : pt
+      );
+      setFormData({ ...formData, priceTypes: updatedPriceTypes });
     }
   };
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [productToDelete, setProductToDelete] = useState<string | null>(null);
-  const [editingProduct, setEditingProduct] = useState<{
-    id: string;
-    name: string;
-    type: string;
-    costPerKg: string;
-    retailMarkupPercent: string;
-    wholesaleMarkupPercent: string;
-  } | null>(null);
-  const [formData, setFormData] = useState<ProductFormData>({
-    name: "",
-    type: "",
-    costPerKg: "",
-    retailMarkupPercent: "",
-    wholesaleMarkupPercent: "",
-  });
 
-  const { data: products, refetch } = api.products.getAll.useQuery();
-  const { data: productTypes } = api.productTypes.getAll.useQuery();
+  const handleNumericFocus = (fieldName: string, priceTypeId?: string) => {
+    if (fieldName === "costPerKg" && formData.costPerKg === "0") {
+      setFormData({ ...formData, costPerKg: "" });
+    } else if (priceTypeId) {
+      const priceType = formData.priceTypes.find(pt => pt.priceTypeId === priceTypeId);
+      if (priceType && (priceType.markupPercent === "0" || priceType.markupPercent === "0.00")) {
+        const updatedPriceTypes = formData.priceTypes.map(pt =>
+          pt.priceTypeId === priceTypeId
+            ? { ...pt, markupPercent: "" }
+            : pt
+        );
+        setFormData({ ...formData, priceTypes: updatedPriceTypes });
+      }
+    }
+  };
 
 
   const updateMutation = api.products.update.useMutation({
     onSuccess: () => {
       toast.success("Producto actualizado exitosamente");
       setIsEditOpen(false);
-      setEditingProduct(null);
-      setFormData({ name: "", type: "", costPerKg: "", retailMarkupPercent: "", wholesaleMarkupPercent: "" });
+      setEditingProductId(null);
+      setFormData({ name: "", type: "", costPerKg: "", priceTypes: [] });
       refetch();
     },
     onError: (error) => {
@@ -124,31 +145,67 @@ export default function ProductsPage() {
   };
 
   const handleUpdate = () => {
-    if (!editingProduct) return;
+    if (!editingProductId) return;
+
+    // Filtrar solo los tipos de precio que tienen un porcentaje configurado
+    const validPriceTypes = formData.priceTypes.filter(pt =>
+      pt.markupPercent && pt.markupPercent !== "0"
+    );
+
     updateMutation.mutate({
-      id: editingProduct.id,
-      ...formData,
+      id: editingProductId,
+      name: formData.name,
+      type: formData.type,
+      costPerKg: formData.costPerKg,
+      priceTypes: validPriceTypes.length > 0 ? validPriceTypes : undefined,
     });
   };
 
-  const handleEdit = (product: { id: string; name: string; type: string; costPerKg: string; [key: string]: unknown }) => {
-    setEditingProduct({
-      id: product.id,
-      name: product.name,
-      type: product.type,
-      costPerKg: product.costPerKg,
-      retailMarkupPercent: "0",
-      wholesaleMarkupPercent: "0",
-    });
-    setFormData({
-      name: product.name,
-      type: product.type,
-      costPerKg: product.costPerKg,
-      retailMarkupPercent: "0",
-      wholesaleMarkupPercent: "0",
-    });
+  const handleEdit = (product: { id: string }) => {
+    setEditingProductId(product.id);
     setIsEditOpen(true);
   };
+
+  // Cargar datos del producto cuando se obtiene la información
+  useEffect(() => {
+    if (editingProduct && priceTypes && formData.priceTypes.length === 0) {
+      // Solo inicializar si no hay priceTypes cargados (primera carga)
+      const updatedPriceTypes = priceTypes.map(pt => {
+        const existingPrice = editingProduct.priceTypes?.find((ep: { priceTypeId: string }) => ep.priceTypeId === pt.id);
+        return {
+          priceTypeId: pt.id,
+          markupPercent: existingPrice?.markupPercent || "0",
+        };
+      });
+
+      setFormData({
+        name: editingProduct.name,
+        type: editingProduct.type,
+        costPerKg: editingProduct.costPerKg,
+        priceTypes: updatedPriceTypes,
+      });
+    }
+  }, [editingProduct, priceTypes, formData.priceTypes.length]);
+
+  // Detectar y agregar nuevos tipos de precio sin sobrescribir los existentes
+  useEffect(() => {
+    if (priceTypes && formData.priceTypes.length > 0 && isEditOpen) {
+      const currentPriceTypeIds = new Set(formData.priceTypes.map(pt => pt.priceTypeId));
+      const newPriceTypes = priceTypes.filter(pt => !currentPriceTypeIds.has(pt.id));
+
+      if (newPriceTypes.length > 0) {
+        const additionalPriceTypes = newPriceTypes.map(pt => ({
+          priceTypeId: pt.id,
+          markupPercent: "0",
+        }));
+
+        setFormData(prev => ({
+          ...prev,
+          priceTypes: [...prev.priceTypes, ...additionalPriceTypes],
+        }));
+      }
+    }
+  }, [priceTypes, formData.priceTypes, isEditOpen]);
 
   const handleDelete = (id: string) => {
     setProductToDelete(id);
@@ -163,6 +220,15 @@ export default function ProductsPage() {
     }
   };
 
+  const handleDialogClose = (open: boolean) => {
+    setIsEditOpen(open);
+    if (!open) {
+      // Resetear estado cuando se cierra el diálogo
+      setEditingProductId(null);
+      setFormData({ name: "", type: "", costPerKg: "", priceTypes: [] });
+    }
+  };
+
   return (
     <div
       className="min-h-screen bg-white p-6"
@@ -173,8 +239,14 @@ export default function ProductsPage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center space-x-3 mb-2">
-                <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-                  <Vegan className="h-7 w-7 text-primary" />
+                <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+                  <Image
+                    src="/logoHencoIcono.png"
+                    alt="Henco Logo"
+                    width={48}
+                    height={48}
+                    className="object-contain"
+                  />
                 </div>
                 <h1 className="text-4xl font-bold text-black drop-shadow-sm">Productos</h1>
               </div>
@@ -289,7 +361,7 @@ export default function ProductsPage() {
         </div>
 
         {/* Edit Dialog */}
-        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <Dialog open={isEditOpen} onOpenChange={handleDialogClose}>
           <DialogContent className="border-primary bg-white/95 backdrop-blur-sm">
             <DialogHeader>
               <DialogTitle className="text-primary text-xl">Editar Producto</DialogTitle>
@@ -340,47 +412,86 @@ export default function ProductsPage() {
                 />
               </div>
 
-              <div>
-                <Label htmlFor="edit-retailMarkupPercent" className="text-gray-700 font-medium flex items-center">
-                  <Percent className="h-4 w-4 mr-2" />
-                  Porcentaje de Aumento Minorista
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="edit-retailMarkupPercent"
-                    type="text"
-                    value={formData.retailMarkupPercent}
-                    onChange={(e) => handleNumericInput(e.target.value, "retailMarkupPercent")}
-                    onFocus={() => handleNumericFocus("retailMarkupPercent")}
-                    placeholder="0.00"
-                    className="pr-8 border-primary focus:border-primary focus:ring-primary"
-                  />
-                  <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary font-medium">
-                    %
-                  </span>
-                </div>
-              </div>
+              {/* Price Types Section */}
+              {priceTypes && priceTypes.length > 0 && (
+                <div className="space-y-4 border-t border-gray-200 pt-4">
+                  <Label className="text-gray-700 font-medium flex items-center text-base">
+                    <Percent className="h-5 w-5 mr-2 text-primary" />
+                    Configuración de Precios por Tipo
+                  </Label>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Configura el porcentaje de aumento para cada tipo de precio. Deja en 0 los tipos que no apliquen.
+                  </p>
 
-              <div>
-                <Label htmlFor="edit-wholesaleMarkupPercent" className="text-gray-700 font-medium flex items-center">
-                  <Percent className="h-4 w-4 mr-2" />
-                  Porcentaje de Aumento Mayorista
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="edit-wholesaleMarkupPercent"
-                    type="text"
-                    value={formData.wholesaleMarkupPercent}
-                    onChange={(e) => handleNumericInput(e.target.value, "wholesaleMarkupPercent")}
-                    onFocus={() => handleNumericFocus("wholesaleMarkupPercent")}
-                    placeholder="0.00"
-                    className="pr-8 border-primary focus:border-primary focus:ring-primary"
-                  />
-                  <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary font-medium">
-                    %
-                  </span>
+                  <div className="grid gap-3">
+                    {priceTypes.map((priceType) => {
+                      const currentPriceType = formData.priceTypes.find(pt => pt.priceTypeId === priceType.id);
+                      const markupPercent = currentPriceType?.markupPercent || "0";
+                      const cost = parseFloat(formData.costPerKg) || 0;
+                      const markup = parseFloat(markupPercent) || 0;
+                      const finalPrice = (cost * (1 + markup / 100)).toFixed(2);
+
+                      return (
+                        <div key={priceType.id} className="p-3 border border-gray-200 rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-2">
+                              <Label className="font-medium text-gray-800 text-sm">
+                                {priceType.name}
+                              </Label>
+                              {priceType.isDefault && (
+                                <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">
+                                  Por Defecto
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-600">
+                              Precio: <span className="font-semibold text-primary">${finalPrice}</span>
+                            </div>
+                          </div>
+                          {priceType.description && (
+                            <p className="text-xs text-gray-600 mb-2">{priceType.description}</p>
+                          )}
+                          <div className="relative">
+                            <Input
+                              type="text"
+                              value={markupPercent}
+                              onChange={(e) => handleNumericInput(e.target.value, "markupPercent", priceType.id)}
+                              onFocus={(e) => {
+                                e.target.dataset.originalValue = e.target.value;
+                                if (e.target.value === "0" || e.target.value === "0.00") {
+                                  e.target.select();
+                                }
+                              }}
+                              onBlur={(e) => {
+                                if (e.target.value === "") {
+                                  const originalValue = e.target.dataset.originalValue || "0";
+                                  handleNumericInput(originalValue, "markupPercent", priceType.id);
+                                }
+                              }}
+                              placeholder="0.00"
+                              className="pr-8 text-sm border-primary focus:border-primary focus:ring-primary"
+                            />
+                            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary font-medium text-sm">
+                              %
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {(!priceTypes || priceTypes.length === 0) && (
+                <div className="p-3 border border-amber-200 rounded-lg bg-amber-50/30">
+                  <p className="text-xs text-amber-700">
+                    No hay tipos de precio configurados.
+                    <a href="/dashboard/tipos-precio" className="text-primary hover:underline ml-1">
+                      Crear tipos de precio
+                    </a>
+                  </p>
+                </div>
+              )}
               <Button
                 onClick={handleUpdate}
                 className="w-full"
