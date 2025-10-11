@@ -40,6 +40,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Plus, Trash2, ShoppingCart, Blend, Vegan, Pencil, Percent, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
@@ -347,7 +348,7 @@ export default function EditMixPage() {
 
   if (!mix) {
     return (
-      <div className="min-h-screen bg-white p-6">
+      <div className="min-h-screen bg-white p-4 md:p-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
@@ -359,24 +360,27 @@ export default function EditMixPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="min-h-screen bg-white p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-4 mb-4">
+        <div className="mb-6 md:mb-8">
+          <div className="flex items-center space-x-2 md:space-x-4 mb-3 md:mb-4">
+            <SidebarTrigger className="md:hidden -ml-1" />
             <Button
               variant="outline"
               onClick={() => router.push("/dashboard/mix")}
-              className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+              className="border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs md:text-sm"
+              size="sm"
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Volver a Mix
+              <ArrowLeft className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Volver a Mix</span>
+              <span className="sm:hidden">Volver</span>
             </Button>
           </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center space-x-3 mb-2">
-                <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex-1">
+              <div className="flex items-center space-x-2 md:space-x-3 mb-2">
+                <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg overflow-hidden flex-shrink-0">
                   <Image
                     src="/logoHencoIcono.png"
                     alt="Henco Logo"
@@ -385,16 +389,16 @@ export default function EditMixPage() {
                     className="object-contain"
                   />
                 </div>
-                <h1 className="text-4xl font-bold text-black drop-shadow-sm">Editar Mix</h1>
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black drop-shadow-sm">Editar Mix</h1>
               </div>
-              <p className="text-black text-lg">
+              <p className="text-black text-sm md:text-base lg:text-lg ml-10 md:ml-13 lg:ml-15">
                 Edita {mix.name} y gestiona sus productos y precios
               </p>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {/* Información del Mix y Configuración */}
           <div className="space-y-6">
             {/* Información Básica */}
@@ -571,16 +575,16 @@ export default function EditMixPage() {
 
           {/* Productos del Mix */}
           <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-primary overflow-hidden">
-            <div className="bg-gradient-to-r from-primary to-primary px-6 py-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-white flex items-center">
-                  <Vegan className="h-6 w-6 mr-3" />
+            <div className="bg-gradient-to-r from-primary to-primary px-4 md:px-6 py-3 md:py-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <h2 className="text-lg md:text-xl font-bold text-white flex items-center">
+                  <Vegan className="h-5 w-5 md:h-6 md:w-6 mr-2 md:mr-3" />
                   Productos en el Mix
                 </h2>
                 <Dialog open={isAddProductOpen} onOpenChange={setIsAddProductOpen}>
                   <DialogTrigger asChild>
-                    <Button size="sm" className="bg-white text-primary hover:bg-primary hover:text-primary-foreground">
-                      <Plus className="h-4 w-4 mr-2" />
+                    <Button size="sm" className="bg-white text-primary hover:bg-primary hover:text-primary-foreground w-full sm:w-auto text-xs md:text-sm">
+                      <Plus className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
                       Agregar Producto
                     </Button>
                   </DialogTrigger>
@@ -672,10 +676,12 @@ export default function EditMixPage() {
                 </Dialog>
               </div>
             </div>
-            <div className="p-6">
+            <div className="p-4 md:p-6">
               {mix.products && mix.products.length > 0 ? (
-                <div className="border-2 border-primary/30 rounded-lg overflow-hidden">
-                  <Table>
+                <>
+                  {/* Desktop Table */}
+                  <div className="hidden md:block border-2 border-primary/30 rounded-lg overflow-hidden">
+                    <Table>
                     <TableHeader>
                       <TableRow className="bg-primary">
                         <TableHead className="text-white font-semibold">Producto</TableHead>
@@ -739,7 +745,68 @@ export default function EditMixPage() {
                       ))}
                     </TableBody>
                   </Table>
-                </div>
+                  </div>
+
+                  {/* Mobile Cards */}
+                  <div className="md:hidden space-y-3">
+                    {mix.products.map((item) => (
+                      <Card key={item.id} className="p-3 border border-primary/30">
+                        <div className="space-y-2">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-1.5 mb-1">
+                                <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
+                                <p className="font-medium text-gray-900 text-sm">{item.product.name}</p>
+                              </div>
+                              <p className="text-xs text-gray-600">
+                                ${item.product.costPerKg}/kg
+                              </p>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-3 gap-2 text-xs pt-2 border-t border-gray-200">
+                            <div className="col-span-2">
+                              <p className="text-gray-600 mb-1">Cantidad (kg)</p>
+                              <Input
+                                type="text"
+                                value={getDisplayValue(item.id, item.quantityKg)}
+                                onChange={(e) => handleQuantityEdit(item.id, e.target.value)}
+                                onFocus={(e) => {
+                                  e.target.dataset.originalValue = item.quantityKg;
+                                  if (e.target.value === "0" || e.target.value === "0.000") {
+                                    e.target.select();
+                                  }
+                                }}
+                                onBlur={() => handleQuantityBlur(item.id, item.quantityKg)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.currentTarget.blur();
+                                  }
+                                }}
+                                className="w-full text-xs h-8 border-gray-200 focus:border-primary focus:ring-primary"
+                              />
+                            </div>
+                            <div>
+                              <p className="text-gray-600 mb-1">Costo</p>
+                              <p className="font-bold text-gray-900 text-sm">${item.partialCost}</p>
+                            </div>
+                          </div>
+                          <div className="pt-2 border-t border-gray-200">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleRemoveProduct(item.id)}
+                              disabled={removeProductMutation.isPending}
+                              className="border-red-300 text-red-700 hover:bg-red-50 w-full text-xs h-7"
+                            >
+                              <Trash2 className="h-3 w-3 mr-1" />
+                              Eliminar
+                            </Button>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </>
               ) : (
                 <div className="text-center py-12">
                   <div className="flex flex-col items-center space-y-3">

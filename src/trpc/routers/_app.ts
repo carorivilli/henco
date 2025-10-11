@@ -4,6 +4,7 @@ import { productsRouter } from "./products";
 import { mixesRouter } from "./mixes";
 import { productTypesRouter } from "./productTypes";
 import { priceTypesRouter } from "./priceTypes";
+import { usersRouter } from "./users";
 
 export const appRouter = createTRPCRouter({
   hello: baseProcedure
@@ -21,6 +22,7 @@ export const appRouter = createTRPCRouter({
   mixes: mixesRouter,
   productTypes: productTypesRouter,
   priceTypes: priceTypesRouter,
+  users: usersRouter,
 });
 // export type definition of API
 export type AppRouter = typeof appRouter;

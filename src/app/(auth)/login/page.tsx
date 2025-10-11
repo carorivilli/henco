@@ -52,41 +52,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* IMPULSA Footer - Fixed bottom right */}
-      <div className="fixed bottom-6 right-6">
-        <div className="bg-white/70 backdrop-blur-sm rounded-lg shadow-lg p-3 max-w-xs">
-          <div className="flex flex-col items-center space-y-2">
-            <div className="flex items-center space-x-2">
-              <div className="relative w-12 h-12">
-                <Image
-                  src="/logoImpulsa.png"
-                  alt="Logo IMPULSA"
-                  width={48}
-                  height={48}
-                  className="object-contain"
-                />
-              </div>
-              <p className="text-gray-700 font-semibold text-sm">
-                Desarrollado por IMPULSA
-              </p>
-            </div>
-
-            <div className="border-t border-gray-200 w-full pt-2">
-              <div className="flex flex-col items-center space-y-0.5 text-center">
-                <p className="text-gray-600 text-xs font-medium">
-                  Contacto
-                </p>
-                <p className="text-gray-800 font-semibold text-xs">
-                  Rodrigo Alcoholado
-                </p>
-                <p className="text-gray-600 text-xs">
-                  Tel: +54 9 2614 194014
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      
     </div>
   );
 }

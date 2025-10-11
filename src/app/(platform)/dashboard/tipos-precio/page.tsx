@@ -32,6 +32,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Plus, Pencil, Trash2, DollarSign, Star, Percent } from "lucide-react";
 import { toast } from "sonner";
 
@@ -150,14 +151,15 @@ export default function PriceTypesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="min-h-screen bg-white p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center space-x-3 mb-2">
-                <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+        <div className="mb-6 md:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex-1">
+              <div className="flex items-center space-x-2 md:space-x-3 mb-2">
+                <SidebarTrigger className="md:hidden -ml-1" />
+                <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg overflow-hidden flex-shrink-0">
                   <Image
                     src="/logoHencoIcono.png"
                     alt="Henco Logo"
@@ -166,15 +168,15 @@ export default function PriceTypesPage() {
                     className="object-contain"
                   />
                 </div>
-                <h1 className="text-4xl font-bold text-black drop-shadow-sm">Tipos de Precio</h1>
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black drop-shadow-sm">Tipos de Precio</h1>
               </div>
-              <p className="text-black text-lg">
+              <p className="text-black text-sm md:text-base lg:text-lg ml-10 md:ml-13 lg:ml-15">
                 Gestiona los diferentes tipos de precio para productos y mixes
               </p>
             </div>
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
               <DialogTrigger asChild>
-                <Button className="shadow-lg">
+                <Button className="shadow-lg w-full sm:w-auto">
                   <Plus className="h-4 w-4 mr-2" />
                   Nuevo Tipo de Precio
                 </Button>
@@ -245,13 +247,14 @@ export default function PriceTypesPage() {
 
         {/* Price Types Table */}
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-primary overflow-hidden">
-          <div className="bg-gradient-to-r from-primary to-primary px-6 py-4">
-            <h2 className="text-xl font-bold text-white flex items-center">
-              <Percent className="h-6 w-6 mr-3" />
+          <div className="bg-gradient-to-r from-primary to-primary px-4 md:px-6 py-3 md:py-4">
+            <h2 className="text-lg md:text-xl font-bold text-white flex items-center">
+              <Percent className="h-5 w-5 md:h-6 md:w-6 mr-2 md:mr-3" />
               Tipos de Precio Configurados
             </h2>
           </div>
           <div className="overflow-x-auto">
+            <div className="min-w-full md:min-w-0">
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-primary bg-primary/50">
@@ -356,6 +359,7 @@ export default function PriceTypesPage() {
                 )}
               </TableBody>
             </Table>
+            </div>
           </div>
         </div>
 

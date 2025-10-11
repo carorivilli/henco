@@ -19,7 +19,9 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSignOut, useSession } from "@/hooks/auth-hooks";
+import { ProfileDialog } from "@/components/user/profile-dialog";
 
 type SidebarData = {
   navMain: {
@@ -70,6 +72,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const router = useRouter();
   const { data: session } = useSession();
   const { signOut, isPending } = useSignOut();
+  const [profileDialogOpen, setProfileDialogOpen] = React.useState(false);
 
   const handleSignOut = () => {
     signOut(undefined, {
@@ -149,19 +152,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              asChild
-              className="text-gray-900 hover:text-gray-900 hover:bg-gray-100/50"
+              onClick={() => setProfileDialogOpen(true)}
+              className="text-gray-900 hover:text-gray-900 hover:bg-gray-100/50 cursor-pointer h-auto py-2"
             >
-              <div className="flex items-center gap-2 px-2 py-1.5">
-                <User className="size-4" />
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium">
-                    {session?.user?.name || session?.user?.email || "Usuario"}
-                  </span>
-                  <span className="text-xs text-gray-600">
-                    {session?.user?.email}
-                  </span>
-                </div>
+              <Avatar className="size-8 border-2 border-primary/20">
+                <AvatarImage
+                  src={session?.user?.image || undefined}
+                  alt={session?.user?.name || "Usuario"}
+                />
+                <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
+                  {session?.user?.name
+                    ? session.user.name.charAt(0).toUpperCase()
+                    : session?.user?.email?.charAt(0).toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col text-left">
+                <span className="text-sm font-medium">
+                  {session?.user?.name || session?.user?.email || "Usuario"}
+                </span>
+                <span className="text-xs text-gray-600">
+                  {session?.user?.email}
+                </span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -177,6 +188,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+
+      {/* Profile Dialog */}
+      {session?.user?.id && (
+        <ProfileDialog
+          open={profileDialogOpen}
+          onOpenChange={setProfileDialogOpen}
+          userId={session.user.id}
+          userName={session.user.name}
+          userEmail={session.user.email}
+        />
+      )}
     </Sidebar>
   );
 }
