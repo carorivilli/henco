@@ -38,6 +38,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Plus, Pencil, Trash2, Vegan, Percent } from "lucide-react";
 import { toast } from "sonner";
 
@@ -231,15 +233,16 @@ export default function ProductsPage() {
 
   return (
     <div
-      className="min-h-screen bg-white p-6"
+      className="min-h-screen bg-white p-4 md:p-6"
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center space-x-3 mb-2">
-                <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+        <div className="mb-6 md:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex-1">
+              <div className="flex items-center space-x-2 md:space-x-3 mb-2">
+                <SidebarTrigger className="md:hidden -ml-1" />
+                <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg overflow-hidden flex-shrink-0">
                   <Image
                     src="/logoHencoIcono.png"
                     alt="Henco Logo"
@@ -248,15 +251,15 @@ export default function ProductsPage() {
                     className="object-contain"
                   />
                 </div>
-                <h1 className="text-4xl font-bold text-black drop-shadow-sm">Productos</h1>
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black drop-shadow-sm">Productos</h1>
               </div>
-              <p className="text-black text-lg">
+              <p className="text-black text-sm md:text-base lg:text-lg ml-10 md:ml-13 lg:ml-15">
                 Gestiona el inventario de productos de tu dietética
               </p>
             </div>
             <Button
               onClick={handleCreateNew}
-              className="shadow-lg"
+              className="shadow-lg w-full sm:w-auto"
             >
               <Plus className="h-4 w-4 mr-2" />
               Nuevo Producto
@@ -266,13 +269,15 @@ export default function ProductsPage() {
 
         {/* Products Table */}
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-primary overflow-hidden">
-          <div className="bg-gradient-to-r from-primary to-primary px-6 py-4">
-            <h2 className="text-xl font-bold text-white flex items-center">
-              <Vegan className="h-6 w-6 mr-3" />
+          <div className="bg-gradient-to-r from-primary to-primary px-4 md:px-6 py-3 md:py-4">
+            <h2 className="text-lg md:text-xl font-bold text-white flex items-center">
+              <Vegan className="h-5 w-5 md:h-6 md:w-6 mr-2 md:mr-3" />
               Inventario de Productos
             </h2>
           </div>
-          <div className="overflow-x-auto">
+
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-primary bg-primary/50">
@@ -358,15 +363,99 @@ export default function ProductsPage() {
               </TableBody>
             </Table>
           </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden p-3">
+            {products && products.length > 0 ? (
+              <div className="space-y-3">
+                {products.map((product) => (
+                  <Card key={product.id} className="p-4 border-2 border-primary/30">
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
+                            <h3 className="font-semibold text-gray-900 text-sm">{product.name}</h3>
+                          </div>
+                          <span className="inline-block px-2 py-0.5 bg-primary text-primary-foreground rounded-full text-xs font-medium">
+                            {product.type}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-200 text-xs">
+                        <div>
+                          <p className="text-gray-600 mb-0.5">Costo por Kg</p>
+                          <p className="font-semibold text-gray-900">${product.costPerKg}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600 mb-0.5">Creado</p>
+                          <p className="font-semibold text-gray-900">
+                            {new Date(product.createdAt).toLocaleDateString('es-AR', {
+                              day: '2-digit',
+                              month: '2-digit'
+                            })}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2 pt-2 border-t border-gray-200">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(product)}
+                          className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs"
+                        >
+                          <Pencil className="h-3 w-3 mr-1" />
+                          Editar
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDelete(product.id)}
+                          disabled={deleteMutation.isPending}
+                          className="flex-1 border-red-300 text-red-700 hover:bg-red-50 text-xs"
+                        >
+                          <Trash2 className="h-3 w-3 mr-1" />
+                          Eliminar
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center space-y-3 py-12">
+                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
+                  <Vegan className="h-8 w-8 text-primary-foreground" />
+                </div>
+                <div className="text-center">
+                  <p className="text-gray-800 font-semibold mb-1">
+                    No hay productos registrados
+                  </p>
+                  <p className="text-gray-600 text-sm mb-3">
+                    Comienza agregando tu primer producto a la dietética
+                  </p>
+                  <Button
+                    onClick={handleCreateNew}
+                    size="sm"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Crear Primer Producto
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Edit Dialog */}
         <Dialog open={isEditOpen} onOpenChange={handleDialogClose}>
-          <DialogContent className="border-primary bg-white/95 backdrop-blur-sm">
+          <DialogContent className="border-primary bg-white/95 backdrop-blur-sm max-w-[95vw] sm:max-w-md md:max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-primary text-xl">Editar Producto</DialogTitle>
+              <DialogTitle className="text-primary text-lg md:text-xl">Editar Producto</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               <div>
                 <Label htmlFor="edit-name" className="text-gray-700 font-medium">Nombre</Label>
                 <Input

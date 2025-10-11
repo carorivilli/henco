@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { api } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -39,6 +40,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Plus, Trash2, ShoppingCart, Blend, Leaf, Vegan, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
@@ -185,15 +187,16 @@ export default function MixesPage() {
 
   return (
     <div
-      className="min-h-screen bg-white p-6"
+      className="min-h-screen bg-white p-4 md:p-6"
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center space-x-3 mb-2">
-                <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+        <div className="mb-6 md:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex-1">
+              <div className="flex items-center space-x-2 md:space-x-3 mb-2">
+                <SidebarTrigger className="md:hidden -ml-1" />
+                <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg overflow-hidden flex-shrink-0">
                   <Image
                     src="/logoHencoIcono.png"
                     alt="Henco Logo"
@@ -202,14 +205,14 @@ export default function MixesPage() {
                     className="object-contain"
                   />
                 </div>
-                <h1 className="text-4xl font-bold text-black drop-shadow-sm">Mix de Productos</h1>
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black drop-shadow-sm">Mix de Productos</h1>
               </div>
-              <p className="text-black text-lg">
+              <p className="text-black text-sm md:text-base lg:text-lg ml-10 md:ml-13 lg:ml-15">
                 Crea y gestiona mezclas personalizadas de productos de tu dietética
               </p>
             </div>
             <Button
-              className="shadow-lg"
+              className="shadow-lg w-full sm:w-auto"
               onClick={() => router.push("/dashboard/mix/crear")}
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -218,12 +221,12 @@ export default function MixesPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {/* Lista de Mixes */}
           <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-primary overflow-hidden">
-            <div className="bg-gradient-to-r from-primary to-primary px-6 py-4">
-              <h2 className="text-xl font-bold text-white flex items-center">
-                <Leaf className="h-6 w-6 mr-3" />
+            <div className="bg-gradient-to-r from-primary to-primary px-4 md:px-6 py-3 md:py-4">
+              <h2 className="text-lg md:text-xl font-bold text-white flex items-center">
+                <Leaf className="h-5 w-5 md:h-6 md:w-6 mr-2 md:mr-3" />
                 Lista de Mix
               </h2>
             </div>
@@ -300,17 +303,17 @@ export default function MixesPage() {
 
           {/* Detalles del Mix */}
           <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-primary overflow-hidden">
-            <div className="bg-gradient-to-r from-primary to-primary px-6 py-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-white flex items-center">
-                  <Vegan className="h-6 w-6 mr-3" />
-                  {selectedMix ? `Detalles: ${selectedMix.name}` : "Selecciona un Mix"}
+            <div className="bg-gradient-to-r from-primary to-primary px-4 md:px-6 py-3 md:py-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <h2 className="text-lg md:text-xl font-bold text-white flex items-center">
+                  <Vegan className="h-5 w-5 md:h-6 md:w-6 mr-2 md:mr-3" />
+                  <span className="truncate">{selectedMix ? `Detalles: ${selectedMix.name}` : "Selecciona un Mix"}</span>
                 </h2>
                 {selectedMix && (
                   <Dialog open={isAddProductOpen} onOpenChange={setIsAddProductOpen}>
                     <DialogTrigger asChild>
-                      <Button size="sm" className="bg-white text-primary hover:bg-primary hover:text-primary-foreground">
-                        <ShoppingCart className="h-4 w-4 mr-2" />
+                      <Button size="sm" className="bg-white text-primary hover:bg-primary hover:text-primary-foreground w-full sm:w-auto text-xs md:text-sm">
+                        <ShoppingCart className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
                         Agregar Producto
                       </Button>
                     </DialogTrigger>
@@ -417,55 +420,100 @@ export default function MixesPage() {
                   </div>
 
                   {mixDetails?.products && mixDetails.products.length > 0 ? (
-                    <div className="border-2 border-primary/30 rounded-lg overflow-hidden">
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="bg-primary">
-                            <TableHead className="text-white font-semibold">Producto</TableHead>
-                            <TableHead className="text-white font-semibold">Cantidad (kg)</TableHead>
-                            <TableHead className="text-white font-semibold">Costo Parcial</TableHead>
-                            <TableHead className="text-white font-semibold"></TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {mixDetails.products.map((item) => (
-                            <TableRow
-                              key={item.id}
-                              className="table-row-white !bg-white hover:!bg-white focus:!bg-white active:!bg-white data-[state=selected]:!bg-white"
-                            >
-                              <TableCell>
-                                <div className="flex items-center space-x-2">
-                                  <div className="w-2 h-2 bg-primary rounded-full"></div>
-                                  <div>
-                                    <p className="font-medium text-gray-900">{item.product.name}</p>
-                                    <p className="text-sm text-gray-600">
-                                      ${item.product.costPerKg}/kg
-                                    </p>
-                                  </div>
-                                </div>
-                              </TableCell>
-                              <TableCell className="text-gray-800 font-medium">
-                                {item.quantityKg} kg
-                              </TableCell>
-                              <TableCell className="font-bold text-gray-900">
-                                ${item.partialCost}
-                              </TableCell>
-                              <TableCell>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleRemoveProduct(item.id)}
-                                  disabled={removeProductMutation.isPending}
-                                  className="border-red-300 text-red-700 hover:bg-red-50"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </TableCell>
+                    <>
+                      {/* Desktop Table */}
+                      <div className="hidden md:block border-2 border-primary/30 rounded-lg overflow-hidden">
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-primary">
+                              <TableHead className="text-white font-semibold">Producto</TableHead>
+                              <TableHead className="text-white font-semibold">Cantidad (kg)</TableHead>
+                              <TableHead className="text-white font-semibold">Costo Parcial</TableHead>
+                              <TableHead className="text-white font-semibold"></TableHead>
                             </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
+                          </TableHeader>
+                          <TableBody>
+                            {mixDetails.products.map((item) => (
+                              <TableRow
+                                key={item.id}
+                                className="table-row-white !bg-white hover:!bg-white focus:!bg-white active:!bg-white data-[state=selected]:!bg-white"
+                              >
+                                <TableCell>
+                                  <div className="flex items-center space-x-2">
+                                    <div className="w-2 h-2 bg-primary rounded-full"></div>
+                                    <div>
+                                      <p className="font-medium text-gray-900">{item.product.name}</p>
+                                      <p className="text-sm text-gray-600">
+                                        ${item.product.costPerKg}/kg
+                                      </p>
+                                    </div>
+                                  </div>
+                                </TableCell>
+                                <TableCell className="text-gray-800 font-medium">
+                                  {item.quantityKg} kg
+                                </TableCell>
+                                <TableCell className="font-bold text-gray-900">
+                                  ${item.partialCost}
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleRemoveProduct(item.id)}
+                                    disabled={removeProductMutation.isPending}
+                                    className="border-red-300 text-red-700 hover:bg-red-50"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+
+                      {/* Mobile Cards */}
+                      <div className="md:hidden space-y-2">
+                        {mixDetails.products.map((item) => (
+                          <Card key={item.id} className="p-3 border border-primary/30">
+                            <div className="space-y-2">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center space-x-1.5 mb-1">
+                                    <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0"></div>
+                                    <p className="font-medium text-gray-900 text-sm">{item.product.name}</p>
+                                  </div>
+                                  <p className="text-xs text-gray-600">
+                                    ${item.product.costPerKg}/kg
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-3 gap-2 text-xs pt-2 border-t border-gray-200">
+                                <div>
+                                  <p className="text-gray-600 mb-0.5">Cantidad</p>
+                                  <p className="font-semibold text-gray-900">{item.quantityKg} kg</p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-600 mb-0.5">Costo</p>
+                                  <p className="font-bold text-gray-900">${item.partialCost}</p>
+                                </div>
+                                <div className="flex items-end">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleRemoveProduct(item.id)}
+                                    disabled={removeProductMutation.isPending}
+                                    className="border-red-300 text-red-700 hover:bg-red-50 w-full text-xs h-7"
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    </>
                   ) : (
                     <div className="text-center py-12">
                       <div className="flex flex-col items-center space-y-3">

@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ChartBar, Package, Blend, TrendingUp, DollarSign, Star, Download } from "lucide-react";
 
 type FilterType = "products" | "mixes";
@@ -108,14 +109,15 @@ export default function DashboardPage() {
   });
 
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="min-h-screen bg-white p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center space-x-3 mb-2">
-                <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+        <div className="mb-6 md:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex-1">
+              <div className="flex items-center space-x-2 md:space-x-3 mb-2">
+                <SidebarTrigger className="md:hidden -ml-1" />
+                <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg overflow-hidden flex-shrink-0">
                   <Image
                     src="/logoHencoIcono.png"
                     alt="Henco Logo"
@@ -124,43 +126,45 @@ export default function DashboardPage() {
                     className="object-contain"
                   />
                 </div>
-                <h1 className="text-4xl font-bold text-black drop-shadow-sm">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black drop-shadow-sm">
                   Dashboard
                 </h1>
               </div>
-              <p className="text-black text-lg">
+              <p className="text-black text-sm md:text-base lg:text-lg ml-10 md:ml-13 lg:ml-15">
                 Productos y mix disponibles con precios dinámicos
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
               <Button
                 onClick={handleDownloadReport}
-                className="shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground"
+                className="shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto"
                 disabled={(!products || products.length === 0) && (!mixes || mixes.length === 0)}
               >
                 <Download className="h-4 w-4 mr-2" />
-                Descargar lista de precios
+                <span className="hidden sm:inline">Descargar lista de precios</span>
+                <span className="sm:hidden">Lista de precios</span>
               </Button>
               <Button
                 onClick={handleDownloadFilteredReport}
-                className="shadow-lg bg-secondary hover:bg-secondary/90 text-secondary-foreground"
+                className="shadow-lg bg-secondary hover:bg-secondary/90 text-secondary-foreground w-full sm:w-auto"
                 disabled={!selectedPriceTypeId || ((!products || products.length === 0) && (!mixes || mixes.length === 0))}
               >
                 <Download className="h-4 w-4 mr-2" />
-                Descargar lista filtrada
+                <span className="hidden sm:inline">Descargar lista filtrada</span>
+                <span className="sm:hidden">Lista filtrada</span>
               </Button>
             </div>
           </div>
         </div>
 
         {/* Filter Section */}
-        <div className="mb-6">
-          <Card className="p-4 border-primary bg-white/90 backdrop-blur-sm">
-            <div className="flex items-center space-x-4 flex-wrap gap-4">
-              <div className="flex items-center space-x-2">
-                <label className="text-primary font-medium">Mostrar:</label>
+        <div className="mb-4 md:mb-6">
+          <Card className="p-3 md:p-4 border-primary bg-white/90 backdrop-blur-sm">
+            <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full md:w-auto">
+                <label className="text-primary font-medium text-sm md:text-base whitespace-nowrap">Mostrar:</label>
                 <Select value={filter} onValueChange={(value: FilterType) => setFilter(value)}>
-                  <SelectTrigger className="w-48 border-primary focus:border-primary focus:ring-primary">
+                  <SelectTrigger className="w-full sm:w-48 border-primary focus:border-primary focus:ring-primary">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -180,13 +184,13 @@ export default function DashboardPage() {
                 </Select>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <label className="text-primary font-medium">Tipo de Precio:</label>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full md:w-auto">
+                <label className="text-primary font-medium text-sm md:text-base whitespace-nowrap">Tipo de Precio:</label>
                 <Select
                   value={selectedPriceTypeId}
                   onValueChange={setSelectedPriceTypeId}
                 >
-                  <SelectTrigger className="w-48 border-primary focus:border-primary focus:ring-primary">
+                  <SelectTrigger className="w-full sm:w-48 border-primary focus:border-primary focus:ring-primary">
                     <SelectValue placeholder="Seleccionar tipo de precio" />
                   </SelectTrigger>
                   <SelectContent>
@@ -203,7 +207,7 @@ export default function DashboardPage() {
               </div>
 
               {(!priceTypes || priceTypes.length === 0) && (
-                <div className="text-amber-600 text-sm">
+                <div className="text-amber-600 text-xs md:text-sm w-full md:w-auto">
                   No hay tipos de precio configurados.
                   <a href="/dashboard/tipos-precio" className="text-primary hover:underline ml-1">
                     Crear tipos de precio
@@ -216,21 +220,21 @@ export default function DashboardPage() {
 
         {/* Mensaje de advertencia para mayorista */}
         {isMayorista && (
-          <div className="mb-6">
-            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-              <div className="flex items-center space-x-2">
-                <span className="text-amber-600">⚠️</span>
-                <div>
-                  <p className="text-sm text-amber-700 font-medium">
+          <div className="mb-4 md:mb-6">
+            <div className="p-3 md:p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="flex items-start space-x-2">
+                <span className="text-amber-600 text-lg flex-shrink-0">⚠️</span>
+                <div className="flex-1">
+                  <p className="text-xs md:text-sm text-amber-700 font-medium">
                     Advertencia: El mínimo de compra para precio mayorista es 5 kg.
                   </p>
                   {filter === "products" && (
-                    <p className="text-sm text-amber-700 mt-1">
+                    <p className="text-xs md:text-sm text-amber-700 mt-1">
                       • Los costos y precios se muestran por la cantidad mínima (5kg).
                     </p>
                   )}
                   {filter === "mixes" && (
-                    <p className="text-sm text-amber-700 mt-1">
+                    <p className="text-xs md:text-sm text-amber-700 mt-1">
                       • Solo se muestran mix con peso total igual o mayor a 5kg.
                     </p>
                   )}
@@ -242,21 +246,23 @@ export default function DashboardPage() {
 
         {/* Data Table */}
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-primary overflow-hidden">
-          <div className="bg-gradient-to-r from-primary to-primary px-6 py-4">
-            <h2 className="text-xl font-bold text-white flex items-center">
-              {filter === "products" ? (
-                <>
-                  <Package className="h-6 w-6 mr-3" />
-                  Reporte de Productos
-                </>
-              ) : (
-                <>
-                  <Blend className="h-6 w-6 mr-3" />
-                  Reporte de Mix
-                </>
-              )}
+          <div className="bg-gradient-to-r from-primary to-primary px-4 md:px-6 py-3 md:py-4">
+            <h2 className="text-lg md:text-xl font-bold text-white flex flex-col sm:flex-row sm:items-center gap-2">
+              <span className="flex items-center">
+                {filter === "products" ? (
+                  <>
+                    <Package className="h-5 w-5 md:h-6 md:w-6 mr-2 md:mr-3" />
+                    Reporte de Productos
+                  </>
+                ) : (
+                  <>
+                    <Blend className="h-5 w-5 md:h-6 md:w-6 mr-2 md:mr-3" />
+                    Reporte de Mix
+                  </>
+                )}
+              </span>
               {selectedPriceType && (
-                <span className="ml-3 px-3 py-1 bg-white/20 rounded-full text-sm">
+                <span className="px-2 md:px-3 py-1 bg-white/20 rounded-full text-xs md:text-sm w-fit">
                   {selectedPriceType.name}
                   {selectedPriceType.isDefault && " (Por Defecto)"}
                 </span>
@@ -264,7 +270,8 @@ export default function DashboardPage() {
             </h2>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
             {filter === "products" ? (
               <Table>
                 <TableHeader>
@@ -428,6 +435,158 @@ export default function DashboardPage() {
                   )}
                 </TableBody>
               </Table>
+            )}
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden p-3">
+            {filter === "products" ? (
+              <>
+                {products && products.length > 0 ? (
+                  <div className="space-y-3">
+                    {products.map((product) => (
+                      <Card key={product.id} className="p-4 border-2 border-primary/30">
+                        <div className="space-y-2">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 mb-1">
+                                <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
+                                <h3 className="font-semibold text-gray-900 text-sm">{product.name}</h3>
+                              </div>
+                              <span className="inline-block px-2 py-0.5 bg-primary text-primary-foreground rounded-full text-xs font-medium">
+                                {product.type}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-200">
+                            <div className="text-xs">
+                              <p className="text-gray-600 mb-0.5">Peso Total</p>
+                              <p className="font-semibold text-gray-900 flex items-center">
+                                <Package className="h-3 w-3 text-blue-600 mr-1" />
+                                {'totalQuantityKg' in product ? product.totalQuantityKg : '0.000'} kg
+                              </p>
+                            </div>
+                            <div className="text-xs">
+                              <p className="text-gray-600 mb-0.5">{isMayorista ? 'Costo 5kg' : 'Costo/Kg'}</p>
+                              <p className="font-semibold text-gray-900 flex items-center">
+                                <DollarSign className="h-3 w-3 text-primary mr-1" />
+                                {isMayorista ? (parseFloat(product.costPerKg) * 5).toFixed(2) : product.costPerKg}
+                              </p>
+                            </div>
+                            <div className="text-xs">
+                              <p className="text-gray-600 mb-0.5">Aumento</p>
+                              <p className="font-semibold text-gray-900 flex items-center">
+                                <TrendingUp className="h-3 w-3 text-blue-600 mr-1" />
+                                {selectedPriceTypeId && 'markupPercent' in product ? String(product.markupPercent) : '0'}%
+                              </p>
+                            </div>
+                            <div className="text-xs">
+                              <p className="text-gray-600 mb-0.5">Precio Final</p>
+                              <p className="font-bold text-primary flex items-center">
+                                <DollarSign className="h-3 w-3 mr-1" />
+                                {selectedPriceTypeId && 'finalPrice' in product ? String(product.finalPrice) : '0.00'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center space-y-3 py-12">
+                    <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
+                      <Package className="h-8 w-8 text-primary-foreground" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-gray-800 font-semibold mb-1">
+                        No hay productos registrados
+                      </p>
+                      <p className="text-gray-600 text-sm">
+                        Comienza agregando productos para ver el reporte
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                {mixes && mixes.length > 0 ? (
+                  <div className="space-y-3">
+                    {mixes.map((mix) => (
+                      <Card key={mix.id} className="p-4 border-2 border-orange-200">
+                        <div className="space-y-2">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 mb-1">
+                                <div className="w-2 h-2 bg-orange-500 rounded-full flex-shrink-0"></div>
+                                <h3 className="font-semibold text-gray-900 text-sm">{mix.name}</h3>
+                              </div>
+                              {('products' in mix && mix.products && mix.products.length > 0) && (
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {mix.products.map((product) => (
+                                    <span
+                                      key={product.id}
+                                      className="inline-block px-1.5 py-0.5 bg-orange-100 text-orange-800 rounded text-xs"
+                                    >
+                                      {product.name}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-200">
+                            <div className="text-xs">
+                              <p className="text-gray-600 mb-0.5">Peso Total</p>
+                              <p className="font-semibold text-gray-900 flex items-center">
+                                <Package className="h-3 w-3 text-blue-600 mr-1" />
+                                {'totalWeight' in mix ? mix.totalWeight : '0.000'} kg
+                              </p>
+                            </div>
+                            <div className="text-xs">
+                              <p className="text-gray-600 mb-0.5">Costo Total</p>
+                              <p className="font-semibold text-gray-900 flex items-center">
+                                <DollarSign className="h-3 w-3 text-primary mr-1" />
+                                {mix.totalCost}
+                              </p>
+                            </div>
+                            <div className="text-xs">
+                              <p className="text-gray-600 mb-0.5">Aumento</p>
+                              <p className="font-semibold text-gray-900 flex items-center">
+                                <TrendingUp className="h-3 w-3 text-purple-600 mr-1" />
+                                {selectedPriceTypeId && 'markupPercent' in mix ? String(mix.markupPercent) : '0'}%
+                              </p>
+                            </div>
+                            <div className="text-xs">
+                              <p className="text-gray-600 mb-0.5">Precio Final</p>
+                              <p className="font-bold text-purple-800 flex items-center">
+                                <DollarSign className="h-3 w-3 text-purple-600 mr-1" />
+                                {selectedPriceTypeId && 'finalPrice' in mix ? String(mix.finalPrice) : '0.00'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center space-y-3 py-12">
+                    <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
+                      <Blend className="h-8 w-8 text-orange-600" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-gray-800 font-semibold mb-1">
+                        No hay mix registrados
+                      </p>
+                      <p className="text-gray-600 text-sm">
+                        Comienza creando mix para ver el reporte
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
