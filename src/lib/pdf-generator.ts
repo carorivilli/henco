@@ -231,14 +231,20 @@ export const generateProductsReport = async (data: ReportData): Promise<void> =>
             : mixes;
 
           if (filteredMixes.length > 0) {
-            const mixHeaders = [['Nombre', 'Precio Final por 5kg']];
+            const mixHeaders = [['Nombre', 'Productos', 'Precio Final por 5kg']];
             const mixData = filteredMixes.map(mix => {
               const finalPrice = parseFloat(mix.finalPrice || '0');
               const totalWeight = parseFloat(mix.totalWeight || '1');
               const pricePer5kg = (finalPrice / totalWeight) * 5;
 
+              // Get product names as a comma-separated string
+              const productNames = mix.products && mix.products.length > 0
+                ? mix.products.map(p => p.name).join(', ')
+                : 'Sin productos';
+
               return [
                 String(mix.name || ''),
+                productNames,
                 `$${pricePer5kg.toFixed(2)}`
               ];
             });
@@ -261,6 +267,11 @@ export const generateProductsReport = async (data: ReportData): Promise<void> =>
               },
               alternateRowStyles: {
                 fillColor: colors.light,
+              },
+              columnStyles: {
+                0: { cellWidth: 50 },  // Nombre
+                1: { cellWidth: 90 },  // Productos (más ancho)
+                2: { cellWidth: 40 },  // Precio
               },
               margin: { left: 15, right: 15 },
             });
