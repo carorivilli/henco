@@ -169,10 +169,12 @@ export const generateProductsReport = async (data: ReportData): Promise<void> =>
 
         if (products && products.length > 0) {
           const productHeaders = isMayorista
-            ? [['Nombre', 'Tipo', 'Precio por 5kg']]
-            : [['Nombre', 'Tipo', 'Precio Final']];
+            ? [['Nombre', 'Detalles', 'Precio por 5kg']]
+            : [['Nombre', 'Detalles', 'Precio Final']];
 
-          const productData = products.map(product => {
+          const productData = products
+            .sort((a, b) => (a.type || '').localeCompare(b.type || ''))
+            .map(product => {
             const baseData = [
               String(product.name || ''),
               String(product.type || '')
@@ -231,23 +233,33 @@ export const generateProductsReport = async (data: ReportData): Promise<void> =>
             : mixes;
 
           if (filteredMixes.length > 0) {
-            const mixHeaders = [['Nombre', 'Productos', 'Precio Final por 5kg']];
-            const mixData = filteredMixes.map(mix => {
-              const finalPrice = parseFloat(mix.finalPrice || '0');
-              const totalWeight = parseFloat(mix.totalWeight || '1');
-              const pricePer5kg = (finalPrice / totalWeight) * 5;
+            // Different headers and calculations for MINORISTA vs MAYORISTA
+            const mixHeaders = isMayorista
+              ? [['Nombre', 'Productos', 'Precio Final por 5kg']]
+              : [['Nombre', 'Productos', 'Precio por kg']];
 
-              // Get product names as a comma-separated string
-              const productNames = mix.products && mix.products.length > 0
-                ? mix.products.map(p => p.name).join(', ')
-                : 'Sin productos';
+            const mixData = filteredMixes
+              .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+              .map(mix => {
+                const finalPrice = parseFloat(mix.finalPrice || '0');
+                const totalWeight = parseFloat(mix.totalWeight || '1');
 
-              return [
-                String(mix.name || ''),
-                productNames,
-                `$${pricePer5kg.toFixed(2)}`
-              ];
-            });
+                // Calculate price based on price type
+                const price = isMayorista
+                  ? (finalPrice / totalWeight) * 5  // 5kg price for mayorista
+                  : (finalPrice / totalWeight);      // per kg price for minorista
+
+                // Get product names as a comma-separated string
+                const productNames = mix.products && mix.products.length > 0
+                  ? mix.products.map(p => p.name).join(', ')
+                  : 'Sin productos';
+
+                return [
+                  String(mix.name || ''),
+                  productNames,
+                  `$${price.toFixed(2)}`
+                ];
+              });
 
             autoTable(doc, {
               head: mixHeaders,
@@ -302,8 +314,10 @@ export const generateProductsReport = async (data: ReportData): Promise<void> =>
         doc.text('PRODUCTOS', 15, currentY);
         currentY += 10;
 
-        const productHeaders = [['Nombre', 'Tipo', 'Precio Final']];
-        const productData = products.map(product => [
+        const productHeaders = [['Nombre', 'Detalles', 'Precio Final']];
+        const productData = products
+          .sort((a, b) => (a.type || '').localeCompare(b.type || ''))
+          .map(product => [
           String(product.name || ''),
           String(product.type || ''),
           `$${String(product.finalPrice || '0.00')}`
