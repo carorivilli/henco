@@ -88,7 +88,7 @@ const recalculateMixTotal = async (mixId: string) => {
 
 export const mixesRouter = createTRPCRouter({
   getAll: baseProcedure.query(async () => {
-    const mixesData = await db.select().from(mixes).orderBy(mixes.createdAt);
+    const mixesData = await db.select().from(mixes);
 
     // Get products for each mix
     const mixesWithProducts = await Promise.all(
@@ -112,7 +112,12 @@ export const mixesRouter = createTRPCRouter({
       })
     );
 
-    return mixesWithProducts;
+    // Ordenar por productos (detalles) concatenados y luego por nombre
+    return mixesWithProducts.sort((a, b) => {
+      const aProducts = a.products.map(p => p.name).sort().join(', ');
+      const bProducts = b.products.map(p => p.name).sort().join(', ');
+      return aProducts.localeCompare(bProducts) || a.name.localeCompare(b.name);
+    });
   }),
 
   getAllWithPrices: baseProcedure
@@ -121,7 +126,7 @@ export const mixesRouter = createTRPCRouter({
       priceTypeName: z.string().optional(),
     }))
     .query(async ({ input }) => {
-      const mixesData = await db.select().from(mixes).orderBy(mixes.createdAt);
+      const mixesData = await db.select().from(mixes);
 
       // Determinar si es tipo mayorista
       const isMayorista = input.priceTypeName?.toLowerCase().includes('mayorista') || false;
@@ -188,8 +193,13 @@ export const mixesRouter = createTRPCRouter({
         })
       );
 
-      // Filtrar los mix nulos (excluidos por peso mínimo)
-      return mixesWithProducts.filter(mix => mix !== null);
+      // Filtrar los mix nulos (excluidos por peso mínimo) y ordenar
+      const filteredMixes = mixesWithProducts.filter(mix => mix !== null);
+      return filteredMixes.sort((a, b) => {
+        const aProducts = a.products.map(p => p.name).sort().join(', ');
+        const bProducts = b.products.map(p => p.name).sort().join(', ');
+        return aProducts.localeCompare(bProducts) || a.name.localeCompare(b.name);
+      });
     }),
 
   getById: baseProcedure
