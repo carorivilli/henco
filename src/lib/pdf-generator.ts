@@ -173,7 +173,7 @@ export const generateProductsReport = async (data: ReportData): Promise<void> =>
             : [['Nombre', 'Detalles', 'Precio Final']];
 
           const productData = products
-            .sort((a, b) => (a.type || '').localeCompare(b.type || ''))
+            .sort((a, b) => (a.type || '').localeCompare(b.type || '') || (a.name || '').localeCompare(b.name || ''))
             .map(product => {
             const baseData = [
               String(product.name || ''),
@@ -239,7 +239,16 @@ export const generateProductsReport = async (data: ReportData): Promise<void> =>
               : [['Nombre', 'Productos', 'Precio por kg']];
 
             const mixData = filteredMixes
-              .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+              .sort((a, b) => {
+                // Ordenar primero por productos (detalles), luego por nombre
+                const aProducts = a.products && a.products.length > 0
+                  ? a.products.map(p => p.name).sort().join(', ')
+                  : '';
+                const bProducts = b.products && b.products.length > 0
+                  ? b.products.map(p => p.name).sort().join(', ')
+                  : '';
+                return aProducts.localeCompare(bProducts) || (a.name || '').localeCompare(b.name || '');
+              })
               .map(mix => {
                 const finalPrice = parseFloat(mix.finalPrice || '0');
                 const totalWeight = parseFloat(mix.totalWeight || '1');
@@ -316,7 +325,7 @@ export const generateProductsReport = async (data: ReportData): Promise<void> =>
 
         const productHeaders = [['Nombre', 'Detalles', 'Precio Final']];
         const productData = products
-          .sort((a, b) => (a.type || '').localeCompare(b.type || ''))
+          .sort((a, b) => (a.type || '').localeCompare(b.type || '') || (a.name || '').localeCompare(b.name || ''))
           .map(product => [
           String(product.name || ''),
           String(product.type || ''),

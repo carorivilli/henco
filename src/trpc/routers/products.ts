@@ -43,7 +43,7 @@ export const productsRouter = createTRPCRouter({
         updatedAt: products.updatedAt,
       })
       .from(products)
-      .orderBy(products.createdAt);
+      .orderBy(products.type, products.name);
 
     return allProducts;
   }),
@@ -65,7 +65,7 @@ export const productsRouter = createTRPCRouter({
           updatedAt: products.updatedAt,
         })
         .from(products)
-        .orderBy(products.createdAt);
+        .orderBy(products.type, products.name);
 
       // Si se especifica un tipo de precio, obtener los precios
       if (input.priceTypeId) {
