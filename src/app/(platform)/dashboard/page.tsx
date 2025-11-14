@@ -28,8 +28,10 @@ type FilterType = "products" | "mixes";
 export default function DashboardPage() {
   const [filter, setFilter] = useState<FilterType>("products");
   const [selectedPriceTypeId, setSelectedPriceTypeId] = useState<string>("");
+  const [selectedProductName, setSelectedProductName] = useState<string>("all");
 
   const { data: priceTypes } = api.priceTypes.getAll.useQuery();
+  const { data: productNames } = api.products.getProductNames.useQuery();
 
   // Establecer tipo de precio por defecto cuando se cargan los datos
   useEffect(() => {
@@ -42,6 +44,13 @@ export default function DashboardPage() {
       }
     }
   }, [priceTypes, selectedPriceTypeId]);
+
+  // Reset product name filter when switching to mixes view
+  useEffect(() => {
+    if (filter === "mixes") {
+      setSelectedProductName("all");
+    }
+  }, [filter]);
 
   const selectedPriceType = priceTypes?.find(pt => pt.id === selectedPriceTypeId);
   const isMayorista = selectedPriceType?.name.toLowerCase().includes('mayorista');
@@ -89,7 +98,7 @@ export default function DashboardPage() {
 
       // Generate filtered report with only selected price type
       await generateProductsReport({
-        products: products || [],
+        products: filteredProducts || [],
         mixes: mixes || [],
         priceTypes: [selectedPriceType],
         allPriceTypes: true,
@@ -107,6 +116,11 @@ export default function DashboardPage() {
     priceTypeId: selectedPriceTypeId || undefined,
     priceTypeName: selectedPriceType?.name || undefined,
   });
+
+  // Filter products by selected product name
+  const filteredProducts = products?.filter(product =>
+    selectedProductName === "all" || product.name === selectedProductName
+  );
 
   return (
     <div className="min-h-screen bg-white p-4 md:p-6">
@@ -206,6 +220,28 @@ export default function DashboardPage() {
                 </Select>
               </div>
 
+              {filter === "products" && (
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full md:w-auto">
+                  <label className="text-primary font-medium text-sm md:text-base whitespace-nowrap">Producto:</label>
+                  <Select
+                    value={selectedProductName}
+                    onValueChange={setSelectedProductName}
+                  >
+                    <SelectTrigger className="w-full sm:w-48 border-primary focus:border-primary focus:ring-primary">
+                      <SelectValue placeholder="Todos los productos" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos los productos</SelectItem>
+                      {productNames?.map((name) => (
+                        <SelectItem key={name} value={name}>
+                          {name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
               {(!priceTypes || priceTypes.length === 0) && (
                 <div className="text-amber-600 text-xs md:text-sm w-full md:w-auto">
                   No hay tipos de precio configurados.
@@ -289,7 +325,7 @@ export default function DashboardPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {products?.map((product) => (
+                  {filteredProducts?.map((product) => (
                     <TableRow key={product.id} className="table-row-white">
                       <TableCell className="font-medium text-gray-900">
                         <div className="flex items-center space-x-3">
@@ -328,7 +364,7 @@ export default function DashboardPage() {
                       </TableCell>
                     </TableRow>
                   ))}
-                  {(!products || products.length === 0) && (
+                  {(!filteredProducts || filteredProducts.length === 0) && (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center py-16">
                         <div className="flex flex-col items-center space-y-4">
@@ -337,10 +373,10 @@ export default function DashboardPage() {
                           </div>
                           <div>
                             <p className="text-gray-800 font-semibold text-lg mb-2">
-                              No hay productos registrados
+                              {selectedProductName !== "all" ? "No se encontró este producto" : "No hay productos registrados"}
                             </p>
                             <p className="text-gray-600">
-                              Comienza agregando productos para ver el reporte
+                              {selectedProductName !== "all" ? "Selecciona otro producto" : "Comienza agregando productos para ver el reporte"}
                             </p>
                           </div>
                         </div>
@@ -442,9 +478,9 @@ export default function DashboardPage() {
           <div className="md:hidden p-3">
             {filter === "products" ? (
               <>
-                {products && products.length > 0 ? (
+                {filteredProducts && filteredProducts.length > 0 ? (
                   <div className="space-y-3">
-                    {products.map((product) => (
+                    {filteredProducts.map((product) => (
                       <Card key={product.id} className="p-4 border-2 border-primary/30">
                         <div className="space-y-2">
                           <div className="flex items-start justify-between">
@@ -500,10 +536,10 @@ export default function DashboardPage() {
                     </div>
                     <div className="text-center">
                       <p className="text-gray-800 font-semibold mb-1">
-                        No hay productos registrados
+                        {selectedProductName !== "all" ? "No se encontró este producto" : "No hay productos registrados"}
                       </p>
                       <p className="text-gray-600 text-sm">
-                        Comienza agregando productos para ver el reporte
+                        {selectedProductName !== "all" ? "Selecciona otro producto" : "Comienza agregando productos para ver el reporte"}
                       </p>
                     </div>
                   </div>

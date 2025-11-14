@@ -48,6 +48,15 @@ export const productsRouter = createTRPCRouter({
     return allProducts;
   }),
 
+  getProductNames: baseProcedure.query(async () => {
+    const result = await db
+      .selectDistinct({ name: products.name })
+      .from(products)
+      .orderBy(products.name);
+
+    return result.map(row => row.name).filter(name => name !== null && name !== '');
+  }),
+
   getAllWithPrices: baseProcedure
     .input(z.object({
       priceTypeId: z.string().optional(),

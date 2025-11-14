@@ -6,12 +6,14 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Formats a price for PDF reports with comma as decimal separator
+ * Formats a price for PDF reports with comma as decimal separator and dot as thousand separator
  * @param price - The price as a number or string
- * @returns Formatted price string with comma separator (e.g., "1234,56")
+ * @returns Formatted price string with Spanish format (e.g., "84.000,99")
  */
 export function formatPriceForReport(price: number | string): string {
   const numPrice = typeof price === 'string' ? parseFloat(price) : price;
-  const fixed = numPrice.toFixed(2);
-  return fixed.replace('.', ',');
+  return numPrice.toLocaleString('es-AR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
