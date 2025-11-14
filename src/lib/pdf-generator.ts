@@ -3,6 +3,7 @@
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { formatPriceForReport } from './utils';
 
 // Type definitions for autoTable
 declare module 'jspdf-autotable' {
@@ -181,9 +182,9 @@ export const generateProductsReport = async (data: ReportData): Promise<void> =>
             ];
 
             if (isMayorista) {
-              baseData.push(`$${(parseFloat(product.finalPrice || '0') * 5).toFixed(2)}`);
+              baseData.push(`$${formatPriceForReport(parseFloat(product.finalPrice || '0') * 5)}`);
             } else {
-              baseData.push(`$${String(product.finalPrice || '0.00')}`);
+              baseData.push(`$${formatPriceForReport(product.finalPrice || '0')}`);
             }
 
             return baseData;
@@ -266,7 +267,7 @@ export const generateProductsReport = async (data: ReportData): Promise<void> =>
                 return [
                   String(mix.name || ''),
                   productNames,
-                  `$${price.toFixed(2)}`
+                  `$${formatPriceForReport(price)}`
                 ];
               });
 
@@ -329,7 +330,7 @@ export const generateProductsReport = async (data: ReportData): Promise<void> =>
           .map(product => [
           String(product.name || ''),
           String(product.type || ''),
-          `$${String(product.finalPrice || '0.00')}`
+          `$${formatPriceForReport(product.finalPrice || '0')}`
         ]);
 
         autoTable(doc, {
